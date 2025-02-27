@@ -553,6 +553,48 @@ class RenderManager {
         return static::_cleanUpFilesHelper($Renderings, 0, $dry_run);
     }
 
+    public static function cleanUpTempZipFiles($dry_run = false)
+    {
+        $render_base_path = \App\Renderers\RenderAbstract::getRenderBasePath();
+        $threshold = 3600; // 1 hour in seconds
+
+        $handle = opendir($render_base_path);
+        $deleted_files = [];
+
+        while(false !== ($entry = readdir($handle))) {
+            if($entry == '.' || $entry == '..') {
+                continue;
+            }
+
+            $path = $render_base_path . $entry;
+
+            if(!is_file($path) || $path == 'readme.txt') {
+                continue;
+            }
+
+            $ext = explode('.', $entry);
+            $ext = end($ext);
+
+            if($ext == 'zip' && substr($entry, 0, 6) == 'truth_') {
+                $mod_time = filemtime($path);
+
+                if(time() - $mod_time < $threshold) {
+                    continue;
+                }
+                
+                if($dry_run) {
+                    $deleted_files[] = $entry;
+                } else {
+                    unlink($path);
+                }
+            }
+        }
+
+        closedir($handle);
+
+        return $dry_run ? $deleted_files : true;
+    }
+
     private static function _deletableQueryAddSort(&$DeletableQuery) {
         // Todo: Make this ordering a config?
         // This will need continued tweaking
@@ -720,8 +762,12 @@ class RenderManager {
         }
 
         if($dry_run) {
+            $deleted_files = array_merge($deleted_files, static::cleanUpTempZipFiles(true));
+            
             return compact('cur_space', 'space_needed_overall', 'freed_space', 'space_needed_render', 'deleted_files');
         }
+
+        static::cleanUpTempZipFiles(false);
 
         if($space_needed_overall > $freed_space && $space_needed_render > 0) {
             // echo "$space_needed_overall / $freed_space";

@@ -24,6 +24,17 @@ class RenderManagerTest extends TestCase {
         $this->assertArrayHasKey('desc', $list['pdf']);
     }
 
+    public function testZipFileCleanup()
+    {
+        $deleted = RenderManager::cleanUpTempZipFiles(true);
+
+        $this->assertIsArray($deleted);
+
+        foreach($deleted as $file) {
+            $this->assertMatchesRegularExpression('/^truth_\d{8}_\d{6}_\d{6}\.zip$/', $file);
+        }
+    }
+
     public function testFileCleanUpCalcs() {
         $verbose = FALSE;
 
