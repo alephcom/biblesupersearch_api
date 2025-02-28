@@ -368,7 +368,7 @@ abstract class RenderAbstract
         return $text;
     }
 
-    public function getRenderFilePath($create_dir = FALSE) 
+    public function getRenderFilePath($create_dir = FALSE, $relative = false) 
     {
         if($this->hasErrors()) {
             return FALSE;
@@ -377,9 +377,10 @@ abstract class RenderAbstract
         $renderer = (new \ReflectionClass($this))->getShortName();
         $module = $this->Bible->module;
 
-        $dir = static::getRenderBasePath() . $renderer;
+        $dir = $relative ? '' : static::getRenderBasePath();
+        $dir .= $renderer;
 
-        if(!is_dir($dir) && $create_dir) {
+        if(!is_dir($dir) && $create_dir && !relative) {
             mkdir($dir, 0775, TRUE);
             chmod($dir, 0775);
         }

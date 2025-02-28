@@ -4,6 +4,7 @@ namespace App;
 use App\Models\Bible;
 use App\Models\Process;
 use App\Models\Rendering;
+use App\Models\RenderLog;
 use App\ProcessManager;
 use Illuminate\Support\Facades\Gate;
 
@@ -305,6 +306,8 @@ class RenderManager {
             return str_pad($input, strlen($input) - mb_strlen($input,$encoding) + $pad_length, $pad_string, $pad_style);
         };
 
+        RenderLog::deleteByIp($_SERVER['REMOTE_ADDR'], 300);
+
         if($this->multi_bibles || $this->multi_format || $this->zip) {
             $date = new \DateTime();
             $zip_filename = 'truth_' . $date->format('Ymd_His_u') . '.zip';
@@ -329,6 +332,13 @@ class RenderManager {
                 if(!$Zip->open($zip_path, \ZipArchive::CREATE)) {
                     return $this->addError('Unable to create ZIP file <tmppath>/' . $zip_filename);
                 }
+
+                $Log = new RenderLog;
+                $Log->module = 'ALL';
+                $Log->filename = $zip_filename;
+                $Log->ip_address = $_SERVER['REMOTE_ADDR'];
+                
+                $Log->save();
 
                 // Copy all appropiate files into Zip file
                 foreach($this->format as $format) {
@@ -417,7 +427,7 @@ class RenderManager {
                 $Zip->close();   
             }
             catch (\Exception $e) {
-                // return $this->addError($e->getMessage());
+                return $this->addError($e->getMessage());
             }
 
             // Send Zip file to browser as download
@@ -432,6 +442,12 @@ class RenderManager {
             $Renderer->incrementHitCounter();
             $download_file_path = $Renderer->getDownloadFilePath();
             $download_file_name = basename($download_file_path);
+
+            $Log = new RenderLog;
+            $Log->module = $Bible->module;
+            $Log->filename = $Renderer->getRenderFilePath(false, true);
+            $Log->ip_address = $_SERVER['REMOTE_ADDR'];
+            $Log->save();
 
             // Send file to browser as download
         }
