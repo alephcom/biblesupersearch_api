@@ -157,6 +157,13 @@ class RenderManagerTest extends TestCase {
         $TextRender = new \App\Renderers\PlainText('kjv');
         $success = $TextRender->renderIfNeeded();        
         $this->assertTrue($success);
+
+        $TextRender->deleteRenderFile();
+        $this->assertTrue($TextRender->isRenderNeeded(TRUE), 'file deleted, should need render here');
+
+        $success = $TextRender->renderIfNeeded();
+        $this->assertTrue($success);
+
         $this->assertFalse($TextRender->isRenderNeeded(TRUE), 'Already rendered, shoudnt need it here ' . __LINE__);
         
         $file_path = $TextRender->getRenderFilePath();
