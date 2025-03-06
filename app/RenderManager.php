@@ -59,13 +59,16 @@ class RenderManager {
     protected $multi_bibles = FALSE;
     protected $multi_format = FALSE;
     protected $needs_process = FALSE;
+    protected $Output = NULL;
+    protected $ProgressBar = NULL;
     public $include_extras = FALSE;
 
-    public function __construct($modules, $format, $zip = FALSE) 
+    public function __construct($modules, $format, $zip = FALSE, $Output = NULL) 
     {
-        $this->multi_bibles = ($modules == 'ALL' || count($modules) > 1);
+        $this->multi_bibles = ($modules == 'ALL' || $modules == 'OFFICIAL' || count($modules) > 1);
         $this->multi_format = ($format  == 'ALL' || count($format)  > 1);
         $this->zip = ($this->multi_bibles && $this->multi_format) ? TRUE : $zip;
+        $this->Output = $Output ?: null;
 
         if($this->multi_bibles && $this->multi_format) {
             $this->addError('Cannot request multiple items for both Bible and format!');
@@ -90,6 +93,9 @@ class RenderManager {
 
         if($modules == 'ALL') {
             $this->_selectAllBibles();
+        }
+        elseif($modules == 'OFFICIAL') {
+            $this->_selectOfficialBibles();
         }
         else {
             $modules = (array) $modules;
@@ -146,8 +152,25 @@ class RenderManager {
         return $success;
     }
 
-    protected function _selectAllBibles() {
+    protected function _selectAllBibles() 
+    {
         $Bibles = Bible::where('enabled', 1) -> get() -> all();
+
+        foreach($Bibles as $Bible) {
+            if($Bible->isDownloadable()) {
+                $this->Bibles[]  = $Bible;
+                $this->modules[] = $Bible->module;
+            }
+        }
+
+        if(empty($this->Bibles)) {
+            $this->addError('No downloadable Bibles installed');
+        }
+    }
+
+    protected function _selectOfficialBibles() 
+    {
+        $Bibles = Bible::where('enabled', 1) -> where('official', 1) -> get() -> all();
 
         foreach($Bibles as $Bible) {
             if($Bible->isDownloadable()) {
@@ -199,7 +222,8 @@ class RenderManager {
         return $Bibles_Needing_Render;
     }
 
-    public function render($overwrite = FALSE, $suppress_overwrite_error = TRUE, $bypass_render_limit = FALSE) {
+    public function render($overwrite = FALSE, $suppress_overwrite_error = TRUE, $bypass_render_limit = FALSE) 
+    {
         if($this->hasErrors()) {
             return FALSE;
         }
@@ -222,6 +246,12 @@ class RenderManager {
                 if($Bibles_Needing_Render === FALSE) {
                     return FALSE;
                 }
+
+                if($this->Output && count($Bibles_Needing_Render) > 0) {
+                    $this->ProgressBar = $this->Output->createProgressBar(count($Bibles_Needing_Render));
+                    $this->ProgressBar->setFormatDefinition('custom', ' %current%/%max% [%bar%] %percent:3s%% %elapsed:6s%/%estimated:-6s% -- %message%                     ' . PHP_EOL);
+                    $this->ProgressBar->setFormat('custom');
+                }
                 
                 foreach($Bibles_Needing_Render as $Bible) {
                     if(!static::isRenderWritable($format, $Bible->module)) {
@@ -229,12 +259,19 @@ class RenderManager {
                         continue;
                     }
 
+                    $this->ProgressBar->setMessage($Bible->name);
+
                     $Renderer = new $CLASS($Bible);
 
                     if(!$Renderer->render(TRUE, $suppress_overwrite_error)) {
                         $this->addErrors($Renderer->getErrors(), $Renderer->getErrorLevel());
                     }
+
+                    $this->ProgressBar->advance();
                 }
+
+                $this->ProgressBar->setMessage('');
+                $this->ProgressBar->finish();
             }
         }
         catch (\Exception $e) {
@@ -249,7 +286,8 @@ class RenderManager {
         return !$this->hasErrors();
     }
 
-    public function renderExtras($overwrite = FALSE, $error_if_not_applicable = FALSE, $return_file_list = FALSE) {
+    public function renderExtras($overwrite = FALSE, $error_if_not_applicable = FALSE, $return_file_list = FALSE) 
+    {
         $ExtrasRenderer = NULL;
 
         try {
@@ -281,7 +319,8 @@ class RenderManager {
         return FALSE;
     }
 
-    public function download($bypass_render_limit = FALSE) {
+    public function download($bypass_render_limit = FALSE, $make_file_only = false, $en_lang_name = false) 
+    {
 
         if($this->hasErrors()) {
             return FALSE;
@@ -306,7 +345,9 @@ class RenderManager {
             return str_pad($input, strlen($input) - mb_strlen($input,$encoding) + $pad_length, $pad_string, $pad_style);
         };
 
-        RenderLog::deleteByIp($_SERVER['REMOTE_ADDR'], 300);
+        if(isset($_SERVER['REMOTE_ADDR'])) {
+            RenderLog::deleteByIp($_SERVER['REMOTE_ADDR'], 300);
+        }
 
         if($this->multi_bibles || $this->multi_format || $this->zip) {
             $date = new \DateTime();
@@ -333,12 +374,13 @@ class RenderManager {
                     return $this->addError('Unable to create ZIP file <tmppath>/' . $zip_filename);
                 }
 
-                $Log = new RenderLog;
-                $Log->module = 'ALL';
-                $Log->filename = $zip_filename;
-                $Log->ip_address = $_SERVER['REMOTE_ADDR'];
-                
-                $Log->save();
+                if(isset($_SERVER['REMOTE_ADDR'])) {
+                    $Log = new RenderLog;
+                    $Log->module = 'ALL';
+                    $Log->filename = $zip_filename;
+                    $Log->ip_address = $_SERVER['REMOTE_ADDR'];
+                    $Log->save();
+                }
 
                 // Copy all appropiate files into Zip file
                 foreach($this->format as $format) {
@@ -370,7 +412,12 @@ class RenderManager {
                         $display_name = $Bible->name;
                         $display_name .= ($Bible->year) ? ' (' . $Bible->year . ')' : '';
                         $display_filename = basename($filepath);
-                        $lang_dir = strtoupper($Bible->lang_short) . '-' . str_replace(' ', '_', trim($Bible->language->native_name));
+                        
+                        if($en_lang_name) {
+                            $lang_dir = strtoupper($Bible->lang_short) . '-' . str_replace(' ', '_', trim($Bible->language->name));
+                        } else {
+                            $lang_dir = strtoupper($Bible->lang_short) . '-' . str_replace(' ', '_', trim($Bible->language->native_name));
+                        }
 
                         if($group_by_language) {
                             $filename = $lang_dir . '/' . basename($filepath);
@@ -379,8 +426,13 @@ class RenderManager {
                         }
 
                         if($group_by_language && !isset($language_cache[$Bible->lang_short])) {
-                            $lang_english = $Bible->lang_short == 'en' ? '' : '   (' . $Bible->language->name . ')';
-                            $readme_cache[$lang_dir] = "\n\n" . $lang_dir . $lang_english . "\n" . str_repeat('-', 140) . "\n";
+                            if($en_lang_name) {
+                                $lang_display = $Bible->lang_short == 'en' ? '' : '   (' . $Bible->language->native_name . ')';
+                            } else {
+                                $lang_display = $Bible->lang_short == 'en' ? '' : '   (' . $Bible->language->name . ')';
+                            }
+                            
+                            $readme_cache[$lang_dir] = "\n\n" . $lang_dir . $lang_display . "\n" . str_repeat('-', 140) . "\n";
                             $language_cache[$Bible->lang_short] = true;
                         }
 
@@ -452,7 +504,7 @@ class RenderManager {
             // Send file to browser as download
         }
 
-        if(file_exists($download_file_path)) {
+        if(!$make_file_only && file_exists($download_file_path)) {
             header('Content-Description: File Transfer');
             header('Content-Type: application/octet-stream');
             header('Content-Disposition: attachment; filename=' . $download_file_name);
@@ -478,15 +530,19 @@ class RenderManager {
             exit;
         }
         else {
-            return $this->addError('Unknown error - download file no longer exists');
+            if(!$make_file_only) {
+                return $this->addError('Unknown error - download file no longer exists');
+            }
         }
     }
 
-    public function needsProcess() {
+    public function needsProcess() 
+    {
         return $this->needs_process;
     }
 
-    public static function deleteAllFiles($dry_run = FALSE) {
+    public static function deleteAllFiles($dry_run = FALSE) 
+    {
         if($dry_run) {
             return TRUE;
         }
@@ -503,7 +559,8 @@ class RenderManager {
     /**
      * Deletes files as needed to make room for the current batch
      */
-    public function cleanUpFiles($dry_run = FALSE) {
+    public function cleanUpFiles($dry_run = FALSE) 
+    {
         $CLASS = $this->getRenderClass();
         $RendererId = $CLASS::getRendererId();
         $modules_has_file = $modules_no_file = [];
@@ -562,7 +619,8 @@ class RenderManager {
         return TRUE;
     }
 
-    public static function cleanUpTempFiles($dry_run = FALSE) {
+    public static function cleanUpTempFiles($dry_run = FALSE) 
+    {
         $DeletableQuery = Rendering::whereNotNull('rendered_at');
         static::_deletableQueryAddSort($DeletableQuery);
         $Renderings = $DeletableQuery->get();
@@ -611,7 +669,8 @@ class RenderManager {
         return $dry_run ? $deleted_files : true;
     }
 
-    private static function _deletableQueryAddSort(&$DeletableQuery) {
+    private static function _deletableQueryAddSort(&$DeletableQuery) 
+    {
         // Todo: Make this ordering a config?
         // This will need continued tweaking
         $DeletableQuery->orderBy('rendered_duration', 'desc');
@@ -622,14 +681,16 @@ class RenderManager {
         // $DeletableQuery->oldest('rendered_at');
     }
 
-    public static function _testCleanUpFiles($space_needed_render = 0, $verbose = FALSE, $debug_overrides = []) {
+    public static function _testCleanUpFiles($space_needed_render = 0, $verbose = FALSE, $debug_overrides = []) 
+    {
         $DeletableQuery = Rendering::whereNotNull('rendered_at');
         static::_deletableQueryAddSort($DeletableQuery);
         $Renderings = $DeletableQuery->get();
         return static::_cleanUpFilesHelper($Renderings, $space_needed_render, TRUE, $verbose, $debug_overrides);
     }
 
-    private static function _cleanUpFilesHelper($DeletableRenderings, $space_needed_render = 0, $dry_run = FALSE, $verbose = FALSE, $debug_overrides = []) {
+    private static function _cleanUpFilesHelper($DeletableRenderings, $space_needed_render = 0, $dry_run = FALSE, $verbose = FALSE, $debug_overrides = []) 
+    {
         $retain             = (bool) config('download.retain');
         $min_render_time    = config('download.cache.min_render_time') ?: FALSE;
         $min_hits           = config('download.cache.min_hits') ?: FALSE;
