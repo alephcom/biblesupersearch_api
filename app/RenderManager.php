@@ -248,6 +248,7 @@ class RenderManager {
                 }
 
                 if($this->Output && count($Bibles_Needing_Render) > 0) {
+                    $this->Output->write("Rendering bibles \n");
                     $this->ProgressBar = $this->Output->createProgressBar(count($Bibles_Needing_Render));
                     $this->ProgressBar->setFormatDefinition('custom', ' %current%/%max% [%bar%] %percent:3s%% %elapsed:6s%/%estimated:-6s% -- %message%                     ' . PHP_EOL);
                     $this->ProgressBar->setFormat('custom');
@@ -259,19 +260,24 @@ class RenderManager {
                         continue;
                     }
 
-                    $this->ProgressBar->setMessage($Bible->name);
+                    $this->Output && $this->ProgressBar->setMessage($Bible->name);
 
                     $Renderer = new $CLASS($Bible);
 
                     if(!$Renderer->render(TRUE, $suppress_overwrite_error)) {
                         $this->addErrors($Renderer->getErrors(), $Renderer->getErrorLevel());
                     }
+                    
+                    if($this->Output) {
+                        $this->ProgressBar->advance();
+                    }
 
-                    $this->ProgressBar->advance();
                 }
 
-                $this->ProgressBar->setMessage('');
-                $this->ProgressBar->finish();
+                if($this->Output && count($Bibles_Needing_Render) > 0) {
+                    $this->ProgressBar->setMessage('');
+                    $this->ProgressBar->finish();
+                }
             }
         }
         catch (\Exception $e) {
@@ -387,9 +393,20 @@ class RenderManager {
                     $readme_cache = $language_cache = [];
                     $CLASS = static::$register[$format];
 
+                    if($this->Output && count($this->Bibles) > 0) {
+                        $this->Output->write("Adding bibles to .ZIP file \n");
+                        $this->ProgressBar = $this->Output->createProgressBar(count($this->Bibles));
+                        $this->ProgressBar->setFormatDefinition('custom', ' %current%/%max% [%bar%] %percent:3s%% %elapsed:6s%/%estimated:-6s% -- %message%                     ' . PHP_EOL);
+                        $this->ProgressBar->setFormat('custom');
+                    }
+
                     $readme .= strip_tags( $CLASS::getName() ) . "\n";
                     $readme .= strip_tags( $CLASS::getDescription() ) . "\n\n\n";
-                    $readme .= "Index of Bibles Included: \n\n";
+                    $readme .= "These Bibles are legally shareable and reshareable for non-commercial purposes.  Please share them with others.\n\n";
+                    $readme .= "Please see the copyright statement on each Bible for more information.\n\n";
+                    $readme .= "These files are provided as-is and without warranty.\n\n";
+
+                    $readme .= "\nIndex of Bibles Included: \n\n";
                     
                     if($group_by_language) {
                         $readme .= 'File' . str_repeat(' ', 40) . "Bible\n";
@@ -407,10 +424,17 @@ class RenderManager {
                             continue;
                         }
 
+                        if($this->Output) {
+                            $this->ProgressBar->setMessage($Bible->name);
+
+                        }
+
                         $lang = trim($Bible->language->native_name);
                         $lang .= ($Bible->language->name != $Bible->language->native_name) ? ' (' . $Bible->language->name . ')' : '';
                         $display_name = $Bible->name;
-                        $display_name .= ($Bible->year) ? ' (' . $Bible->year . ')' : '';
+
+                        // Add year to display name if it exists and is not already there
+                        $display_name .= ($Bible->year && !str_contains($display_name, $Bible->year)) ? ' (' . $Bible->year . ')' : '';
                         $display_filename = basename($filepath);
                         
                         if($en_lang_name) {
@@ -453,6 +477,15 @@ class RenderManager {
                         }
                         
                         $Renderer->incrementHitCounter();
+
+                        if($this->Output) {
+                            $this->ProgressBar->advance();
+                        }
+                    }
+
+                    if($this->Output) {
+                        $this->ProgressBar->setMessage('');
+                        $this->ProgressBar->finish();
                     }
 
                     ksort($readme_cache);

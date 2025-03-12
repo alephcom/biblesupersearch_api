@@ -46,6 +46,9 @@ class SQLite3 extends RenderAbstract {
             'prefix'   => '',
         ]]);
 
+        Schema::connection('render')->dropIfExists('meta');
+        Schema::connection('render')->dropIfExists('verses');
+
         Schema::connection('render')->create('meta', function(Blueprint $table) {
             $table->string('field', 255);
             $table->text('value')->nullable();
