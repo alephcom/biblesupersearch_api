@@ -49,6 +49,8 @@ abstract class RenderAbstract
     protected $Rendering = NULL;
     protected $overwrite = false;
 
+    protected $connection_map = [];
+
     public function __construct($module) 
     {
         $this->Bible = ($module instanceof Bible) ? $module : Bible::findByModule($module);
@@ -186,6 +188,37 @@ abstract class RenderAbstract
 
         $Rendering->rendered_at = NULL;
         $Rendering->save();
+    }
+
+    /**
+     * Creates a new database connection
+     * @param string $name (desired) connection name
+     * @param array $settings 
+     * @return string $name_adj (actual) connection name 
+     */
+    protected function createDbConnection($name, $settings)
+    {
+        $date = new \DateTime();
+        $name_adj = $name . '_' . $date->format('YmdHis_u');
+
+        config(['database.connections.' . $name_adj => $settings]);
+        $this->connection_map[$name] = $name_adj;
+        return $name_adj;
+    }
+
+    /**
+     * Returns the (actual) connection name for the given connection
+     * @param string $name
+     * @return string $name_adj
+     * @throws \Exception
+     */
+    protected function getDbConnectionName($name)
+    {
+        if(!isset($this->connection_map[$name])) {
+            throw new \Exception('Connection not found');
+        }
+        
+        return $this->connection_map[$name];
     }
 
     /**

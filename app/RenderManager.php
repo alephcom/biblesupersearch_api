@@ -528,11 +528,13 @@ class RenderManager {
             $download_file_path = $Renderer->getDownloadFilePath();
             $download_file_name = basename($download_file_path);
 
-            $Log = new RenderLog;
-            $Log->module = $Bible->module;
-            $Log->filename = $Renderer->getRenderFilePath(false, true);
-            $Log->ip_address = $_SERVER['REMOTE_ADDR'];
-            $Log->save();
+            if(isset($_SERVER['REMOTE_ADDR'])) {
+                $Log = new RenderLog;
+                $Log->module = $Bible->module;
+                $Log->filename = $Renderer->getRenderFilePath(false, true);
+                $Log->ip_address = $_SERVER['REMOTE_ADDR'];
+                $Log->save();
+            }
 
             // Send file to browser as download
         }
