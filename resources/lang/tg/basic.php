@@ -1,11 +1,11 @@
 <?php
 
 return [
-    'holy_bible'        => 'The Holy Bible',
-    'old_testament'     => 'Old Testament',
-    'new_testament'     => 'New Testament',
-    'chapter'           => 'Chapter',
-    'chapter_n'         => 'Chapter :n', // chapter with number, ie 'Chapter 5'
-    'psalm_n'           => 'Psalm :n',   // Psalm with number, ie 'Psalm 119'
-    'table_of_contents' => 'Table of Contents',
+    'holy_bible'        => 'Китоби Муқаддас',
+    'old_testament'     => 'Аҳди Қадим',
+    'new_testament'     => 'Аҳди Ҷадид',
+    'chapter'           => 'Боб',
+    'chapter_n'         => 'Боби :n', // chapter with number, ie 'Chapter 5'
+    'psalm_n'           => 'Забур :n',   // Psalm with number, ie 'Psalm 119'
+    'table_of_contents' => 'Феҳристи Мундариҷа',
 ];

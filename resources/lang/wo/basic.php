@@ -1,5 +1,7 @@
 <?php
 
+// Wolof doesn't want to translate using Google Translate or Github Copilot AI ... 
+
 return [
     'holy_bible'        => 'The Holy Bible',
     'old_testament'     => 'Old Testament',

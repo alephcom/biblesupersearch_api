@@ -1,11 +1,11 @@
 <?php
 
 return [
-    'holy_bible'        => 'The Holy Bible',
-    'old_testament'     => 'Old Testament',
-    'new_testament'     => 'New Testament',
-    'chapter'           => 'Chapter',
-    'chapter_n'         => 'Chapter :n', // chapter with number, ie 'Chapter 5'
+    'holy_bible'        => 'Biblia Święta',
+    'old_testament'     => 'Stary Testament',
+    'new_testament'     => 'Nowy Testament',
+    'chapter'           => 'Rozdział',
+    'chapter_n'         => 'Rozdział :n', // chapter with number, ie 'Rozdział 5'
     'psalm_n'           => 'Psalm :n',   // Psalm with number, ie 'Psalm 119'
-    'table_of_contents' => 'Table of Contents',
+    'table_of_contents' => 'Spis treści',
 ];

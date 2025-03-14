@@ -1,11 +1,11 @@
 <?php
 
 return [
-    'holy_bible'        => 'The Holy Bible',
-    'old_testament'     => 'Old Testament',
-    'new_testament'     => 'New Testament',
-    'chapter'           => 'Chapter',
-    'chapter_n'         => 'Chapter :n', // chapter with number, ie 'Chapter 5'
-    'psalm_n'           => 'Psalm :n',   // Psalm with number, ie 'Psalm 119'
-    'table_of_contents' => 'Table of Contents',
+    'holy_bible'        => 'Svētā Bībele',
+    'old_testament'     => 'Vecā Derība',
+    'new_testament'     => 'Jaunā Derība',
+    'chapter'           => 'Nodaļa',
+    'chapter_n'         => 'Nodaļa :n', // nodaļa ar numuru, piemēram, 'Nodaļa 5'
+    'psalm_n'           => 'Psalms :n', // psalms ar numuru, piemēram, 'Psalms 119'
+    'table_of_contents' => 'Satura rādītājs',
 ];

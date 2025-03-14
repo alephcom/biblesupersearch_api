@@ -1,11 +1,11 @@
 <?php
 
 return [
-    'holy_bible'        => 'The Holy Bible',
-    'old_testament'     => 'Old Testament',
-    'new_testament'     => 'New Testament',
-    'chapter'           => 'Chapter',
-    'chapter_n'         => 'Chapter :n', // chapter with number, ie 'Chapter 5'
-    'psalm_n'           => 'Psalm :n',   // Psalm with number, ie 'Psalm 119'
-    'table_of_contents' => 'Table of Contents',
+    'holy_bible'        => 'Biblia Takatifu',
+    'old_testament'     => 'Agano la Kale',
+    'new_testament'     => 'Agano Jipya',
+    'chapter'           => 'Sura',
+    'chapter_n'         => 'Sura :n', // chapter with number, ie 'Sura 5'
+    'psalm_n'           => 'Zaburi :n',   // Psalm with number, ie 'Zaburi 119'
+    'table_of_contents' => 'Jedwali la Yaliyomo',
 ];
