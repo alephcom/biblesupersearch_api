@@ -5,6 +5,7 @@ namespace App\Renderers;
 use App\Models\Bible;
 use App\Models\Language;
 
+
 abstract class PdfAbstract extends RenderAbstract {
     protected $file_extension = 'pdf';
     protected $include_book_name = TRUE;
@@ -95,6 +96,8 @@ abstract class PdfAbstract extends RenderAbstract {
 
         $this->pdf_margin_outside = $this->pdf_margin_outside ?: $this->pdf_margin;
         $this->pdf_margin_inside  = $this->pdf_margin_inside  ?: $this->pdf_margin;
+
+
 
         $format = static::$pdf_page_format ?: [$this->pdf_width, $this->pdf_height];
         $this->TCPDF  = new $this->tcpdf_class($this->pdf_orientation, $this->pdf_unit, $format);

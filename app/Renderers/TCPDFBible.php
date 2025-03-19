@@ -6,6 +6,13 @@ use \TCPDF;
 use \TCPDF_STATIC;
 use \TCPDF_FONTS;
 
+if(!defined('K_TCPDF_EXTERNAL_CONFIG')) {
+    define('K_TCPDF_EXTERNAL_CONFIG', true);
+}
+
+require_once( dirname(__FILE__) . '/tcpdf_config.php');
+
+
 class TCPDFBible extends TCPDF {
     
     public $current_book;
