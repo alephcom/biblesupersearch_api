@@ -2,8 +2,8 @@
 
 return [
     'holy_bible'        => 'পবিত্র বাইবেল',
-    'old_testament'     => 'পুরাতন নিয়ম',
-    'new_testament'     => 'নতুন নিয়ম',
+    'old_testament'     => 'ওল্ড টেস্টামেন্ট',
+    'new_testament'     => 'নিউ টেস্টামেন্ট',
     'chapter'           => 'অধ্যায়',
     'chapter_n'         => 'অধ্যায় :n', // chapter with number, ie 'Chapter 5'
     'psalm_n'           => 'গীত :n',   // Psalm with number, ie 'Psalm 119'

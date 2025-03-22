@@ -31,6 +31,8 @@ abstract class RenderAbstract
 
     static public $load_fonts = TRUE;
 
+    public $debug = false; // Debug rendering by only rendering handful of verses
+
     protected $file_extension;
 
     protected $Bible;
@@ -245,6 +247,10 @@ abstract class RenderAbstract
             $book_table = $this->_getBookTable();
             $Query->join($book_table, $table . '.book', $book_table . '.id');
             $Query->addSelect($book_table . '.' . $this->book_name_field . ' AS book_name');
+        }
+
+        if($this->debug) {
+            $Query->where($table . '.id', '<', 100);
         }
 
         $closure = function($rows) {

@@ -62,6 +62,7 @@ class RenderManager {
     protected $Output = NULL;
     protected $ProgressBar = NULL;
     public $include_extras = FALSE;
+    public $debug = FALSE;
 
     public function __construct($modules, $format, $zip = FALSE, $Output = NULL) 
     {
@@ -264,6 +265,7 @@ class RenderManager {
                     $this->Output && $this->ProgressBar->setMessage($Bible->name);
 
                     $Renderer = new $CLASS($Bible);
+                    $Renderer->debug = $this->debug;
 
                     try {
                         if(!$Renderer->render(TRUE, $suppress_overwrite_error)) {

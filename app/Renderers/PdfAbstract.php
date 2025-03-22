@@ -56,6 +56,10 @@ abstract class PdfAbstract extends RenderAbstract {
             // 'pdf_font_family'   => 'aefurat', // do not use
             'pdf_column_width'  => 45,
         ],
+        'bn' => [
+            'pdf_chapter_size' => 9,
+            // 'pdf_font_family'  => 'solaimanlipi',
+        ],
         'zh' => [
             'pdf_font_family' => 'msungstdlight',
         ],        
@@ -89,7 +93,8 @@ abstract class PdfAbstract extends RenderAbstract {
     protected $toc_page = 5;
     protected $in_psalms = FALSE;
 
-    public function __construct($module) {
+    public function __construct($module) 
+    {
         parent::__construct($module);
 
         $this->_applyPdfLanguageOverride();
@@ -112,13 +117,20 @@ abstract class PdfAbstract extends RenderAbstract {
         $this->TCPDF->SetMargins($this->pdf_margin_inside, $this->pdf_top_margin, $this->pdf_margin_outside);
     }
 
-    protected function _initiateFonts() {
+    protected function _initiateFonts() 
+    {
         $this->TCPDF->setFont($this->pdf_font_family, '', $this->pdf_text_size);
         $this->TCPDF->setHeaderFont([$this->pdf_font_family, $this->pdf_header_style, $this->pdf_header_size]);
         $this->TCPDF->setFooterFont([$this->pdf_font_family, $this->pdf_header_style, $this->pdf_header_size]);
     }
 
-    protected function _renderStart() {
+    protected function _applyDefaultFont() 
+    {
+        $this->TCPDF->setFont($this->pdf_font_family, '', $this->pdf_text_size);
+    }
+
+    protected function _renderStart() 
+    {
         // todo: Set RTL based on Bible language
 
         $this->TCPDF->setTitle($this->Bible->name);
@@ -374,10 +386,12 @@ abstract class PdfAbstract extends RenderAbstract {
         $this->_renderNewChapter($chapter);
     }
 
-    protected function _renderTestamentHeader($testament) {
+    protected function _renderTestamentHeader($testament) 
+    {
 
         if($this->pdf_break_new_testament == 'page') {
             $this->_addOddNumberedPage();
+            $this->_applyDefaultFont();
             $this->TCPDF->setFontSize($this->pdf_testement_size);
             $this->TCPDF->Bookmark($testament);
             $this->TCPDF->Cell(0, 20, $testament, 0, 1, 'L');
@@ -389,7 +403,8 @@ abstract class PdfAbstract extends RenderAbstract {
         }
     }
 
-    protected function _renderNewChapter($chapter) {
+    protected function _renderNewChapter($chapter) 
+    {
         if($this->pdf_verses_paragraph && $this->text_pending) {
             // $this->text_pending .= '<br />';
         }
@@ -410,20 +425,23 @@ abstract class PdfAbstract extends RenderAbstract {
         $this->TCPDF->Write(0, $chapter_name, '', FALSE, $this->pdf_chapter_align);
         $this->TCPDF->Ln();
         $this->TCPDF->Ln();
-        $this->TCPDF->setFont($this->pdf_font_family, $this->pdf_text_size);
+        $this->_applyDefaultFont();
     }
 
-    protected function _enableColumns() {
+    protected function _enableColumns() 
+    {
         if($this->pdf_columns > 1) {
             $this->TCPDF->setEqualColumns($this->pdf_columns, $this->pdf_column_width);
         }
     }
 
-    protected function _disableColumns() {
+    protected function _disableColumns() 
+    {
         $this->TCPDF->setEqualColumns(0);
     }
 
-    protected function _applyPdfLanguageOverride() {
+    protected function _applyPdfLanguageOverride() 
+    {
         if(array_key_exists($this->Bible->lang_short, $this->pdf_language_overrides) && is_array($this->pdf_language_overrides[ $this->Bible->lang_short ])) {
             foreach($this->pdf_language_overrides[ $this->Bible->lang_short ] as $key => $value) {
                 $this->$key = $value;
@@ -431,7 +449,8 @@ abstract class PdfAbstract extends RenderAbstract {
         }
     }
 
-    protected function _setRtlByLanguage($enable = TRUE) {
+    protected function _setRtlByLanguage($enable = TRUE) 
+    {
         if($enable && Language::isRtl($this->Bible->lang_short)) {
             $this->TCPDF->setRTL(TRUE);
         }
@@ -443,7 +462,8 @@ abstract class PdfAbstract extends RenderAbstract {
     /**
      * Adds the next odd-numbered page
      */
-    protected function _addOddNumberedPage() {
+    protected function _addOddNumberedPage() 
+    {
         $page = $this->TCPDF->getBiblePageCount();
         $this->TCPDF->addPage();
 
@@ -453,7 +473,8 @@ abstract class PdfAbstract extends RenderAbstract {
         } 
     }
 
-    public static function getName() {
+    public static function getName() 
+    {
         if(!static::$name_include_format) {
             return static::$name;
         }
