@@ -3,13 +3,6 @@
 
 date;
 
-echo 'php 8.0:'; 
-/usr/bin/php8.0 -v | grep -E 'PHP [0-9]+\.[0-9]+\.[0-9]+'
-/usr/bin/php8.0 artisan test --parallel
-
-echo 'php 8.1:'; 
-/usr/bin/php8.1 -v | grep -E 'PHP [0-9]+\.[0-9]+\.[0-9]+'
-/usr/bin/php8.1 artisan test --parallel
 
 echo 'php 8.2:'; 
 /usr/bin/php8.2 -v | grep -E 'PHP [0-9]+\.[0-9]+\.[0-9]+'
@@ -19,13 +12,13 @@ echo 'php 8.2:';
 # So, NOT doing parallel testing attm
 
 echo 'php 8.3:'; 
-echo 'Note: some test dependencies fail, this known issue will be resolved by version 6.0'
+#echo 'Note: some test dependencies fail, this known issue will be resolved by version 6.0'
 /usr/bin/php8.3 -v | grep -E 'PHP [0-9]+\.[0-9]+\.[0-9]+'
-#/usr/bin/php8.3 artisan test --parallel
-/usr/bin/php8.3 ./vendor/bin/phpunit
+/usr/bin/php8.3 artisan test --parallel
+#/usr/bin/php8.3 ./vendor/bin/phpunit
 
 echo 'php 8.4:'; 
-echo 'Note: some test dependencies fail, this known issue will be resolved by version 6.0'
+#echo 'Note: some test dependencies fail, this known issue will be resolved by version 6.0'
 /usr/bin/php8.4 -v | grep -E 'PHP [0-9]+\.[0-9]+\.[0-9]+'
-#/usr/bin/php8.4 artisan test --parallel
-/usr/bin/php8.4 ./vendor/bin/phpunit
+/usr/bin/php8.4 artisan test --parallel
+#/usr/bin/php8.4 ./vendor/bin/phpunit
