@@ -10,6 +10,11 @@ class ImportManager {
 
     public $test_mode = FALSE;
 
+    public $import_class = null;
+    public $type = null;
+    public $parsed_attributes = [];
+    public $sanitized_filename = NULL;
+
     // Registry / map of importers that are accessible via HTTP request
     protected static $type_map = [
         'analyzer' => [
