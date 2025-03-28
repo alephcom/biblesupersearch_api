@@ -62,7 +62,7 @@ class IpAccess extends Model implements AccessLogInterface
 
     public function getAccessLog($date = null) 
     {
-        $date = (strtotime($date)) ? date('Y-m-d', strtotime($date)) : date('Y-m-d');
+        $date = ($date && strtotime($date)) ? date('Y-m-d', strtotime($date)) : date('Y-m-d');
         return IpAccessLog::firstOrNew(['ip_id' => $this->id, 'date' => $date]);
     }
 
