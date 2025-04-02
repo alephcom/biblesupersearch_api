@@ -17,7 +17,7 @@ abstract class PdfAbstract extends RenderAbstract {
 
     protected static $name_include_format = FALSE;  // Temporary? Until I find time to rebuild renderers with user options
 
-    protected static $render_est_time = 450;
+    protected static $render_est_time = 4500;
     
     protected $pdf_orientation          = 'P';
     protected $pdf_unit                 = 'mm';
@@ -50,6 +50,7 @@ abstract class PdfAbstract extends RenderAbstract {
     protected $pdf_break_new_testament  = NULL; // none, column, page
     protected $pdf_break_new_book       = NULL; // none, column, page
     protected $pdf_suppress_write_err   = FALSE;
+    protected $pdf_avoid_html           = true; // If TRUE, avoid using HTML tages in the text.
 
     protected $pdf_language_overrides = [
         'ar' => [
@@ -218,14 +219,20 @@ abstract class PdfAbstract extends RenderAbstract {
         $this->last_render_chapter      = $verse->chapter;
     }
 
-    protected function _writeText($text = NULL, $text_pending_addl = '') {
+    protected function _writeText($text = NULL, $text_pending_addl = '') 
+    {
         if(!$text) {
             if(!$this->text_pending) {
                 return;
             }
 
             // Add paragraph indent - currently $this->text_pending is only used for paragraph rendering
-            $text = '<div style="text-indent:20px">' . $this->text_pending . $text_pending_addl . '</div>';
+            if($this->pdf_avoid_html) {
+                $text = $this->text_pending . $text_pending_addl;
+            } else {
+                $text = '<div style="text-indent:20px">' . $this->text_pending . $text_pending_addl . '</div>';
+            }
+
             $this->text_pending = '';
         }
 
@@ -265,7 +272,12 @@ abstract class PdfAbstract extends RenderAbstract {
         $find[] = '  ';
         $repl[] = '&nbsp;&nbsp;';
 
-        $html = str_replace(array('‹', '›', '[', ']', '  '), array($rl_st, $rl_en, '<i>', '</i>', '&nbsp;&nbsp;'), $text);
+        if($this->pdf_avoid_html) {
+            $html = str_replace(array('‹', '›', '[', ']'), '', $text);
+        } else {
+            $html = str_replace(array('‹', '›', '[', ']', '  '), array($rl_st, $rl_en, '<i>', '</i>', '&nbsp;&nbsp;'), $text);
+        }
+
         // $html = str_replace('  ', '&nbsp;&nbsp;', $text); // for some reason THIS takes 16 min for the KJV!
         // $html = $text;
         $this->TCPDF->setFont($this->pdf_font_family, '', $this->pdf_text_size);
