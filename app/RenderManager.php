@@ -250,6 +250,11 @@ class RenderManager {
 
                 if($this->Output && count($Bibles_Needing_Render) > 0) {
                     $this->Output->write("Rendering bibles \n");
+
+                    if($this->debug) {
+                        $this->Output->write("DEBUG mode is on\n");
+                    }
+
                     $this->ProgressBar = $this->Output->createProgressBar(count($Bibles_Needing_Render));
                     $this->ProgressBar->setFormatDefinition('custom', ' %current%/%max% [%bar%] %percent:3s%% %elapsed:6s%/%estimated:-6s% -- %message%                     ' . PHP_EOL);
                     $this->ProgressBar->setFormat('custom');

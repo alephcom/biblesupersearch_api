@@ -57,6 +57,8 @@ class BibleRender extends Command
 
         $start = time();
 
+        $debug = true;
+
         $Manager = new RenderManager($bible, $format, FALSE, $this->output);
         $Manager->include_extras = $extras;
         $Manager->debug = $debug;

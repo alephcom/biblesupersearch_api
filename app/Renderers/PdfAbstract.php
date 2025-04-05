@@ -4,9 +4,10 @@ namespace App\Renderers;
 
 use App\Models\Bible;
 use App\Models\Language;
+use \TCPDF_FONTS;
 
-
-abstract class PdfAbstract extends RenderAbstract {
+abstract class PdfAbstract extends RenderAbstract 
+{
     protected $file_extension = 'pdf';
     protected $include_book_name = TRUE;
     protected $tcpdf_class              = TCPDFBible::class;
@@ -37,7 +38,7 @@ abstract class PdfAbstract extends RenderAbstract {
     protected $pdf_toc_title_size       = 16;
     protected $pdf_toc_size             = 12;
     protected $pdf_header_size          = 8;
-    protected $pdf_header_style         = 'B';    
+    protected $pdf_header_style         = 'B';    // Warning, some languages do not support Bold
     protected $pdf_book_size            = 12;
     protected $pdf_book_style           = 'B';    
     protected $pdf_book_align           = 'C';
@@ -50,7 +51,8 @@ abstract class PdfAbstract extends RenderAbstract {
     protected $pdf_break_new_testament  = NULL; // none, column, page
     protected $pdf_break_new_book       = NULL; // none, column, page
     protected $pdf_suppress_write_err   = FALSE;
-    protected $pdf_avoid_html           = true; // If TRUE, avoid using HTML tages in the text.
+    protected $pdf_avoid_html           = false; // If TRUE, avoid using HTML tages in the text.
+    protected $pdf_allow_bold           = false; // If FALSE, do not use bold text in the PDF.  This is useful for some languages that do not support bold text.
 
     protected $pdf_language_overrides = [
         'ar' => [
@@ -59,7 +61,13 @@ abstract class PdfAbstract extends RenderAbstract {
         ],
         'bn' => [
             'pdf_chapter_size' => 9,
+            'pdf_header_style' => '',
+            'pdf_book_style'   => '',
+            'pdf_chapter_style' => '',
+            'pdf_allow_bold' => false,
+            
             // 'pdf_font_family'  => 'solaimanlipi',
+            // 'pdf_font_family'  => 'freesans',
         ],
         'zh' => [
             'pdf_font_family' => 'msungstdlight',
@@ -109,6 +117,7 @@ abstract class PdfAbstract extends RenderAbstract {
         $this->TCPDF  = new $this->tcpdf_class($this->pdf_orientation, $this->pdf_unit, $format);
         $this->TCPDF->setHeaderMargin(10);
         $this->TCPDF->setFooterMargin(0);
+        $this->TCPDF->allow_bold = $this->pdf_allow_bold;
         
         if(static::$load_fonts) {
             $this->_initiateFonts();
@@ -147,9 +156,9 @@ abstract class PdfAbstract extends RenderAbstract {
 
         $this->TCPDF->setFontSize($this->pdf_title_size);
         $this->TCPDF->setY($title_pos);
-        $this->TCPDF->Cell(0, $title_height, strtoupper(__('basic.holy_bible')),   0, 1, 'C');
+        $this->TCPDF->Cell(0, $title_height, $this->strtoupper(__('basic.holy_bible')),   0, 1, 'C');
         $this->TCPDF->setFontSize($this->pdf_bible_version_size);
-        $this->TCPDF->MultiCell(0, $title_height, strtoupper($this->Bible->name), 0, 'C');
+        $this->TCPDF->MultiCell(0, $title_height, $this->strtoupper($this->Bible->name), 0, 'C');
         $this->TCPDF->ln();
         $this->TCPDF->addPage();
         $this->TCPDF->addPage();
@@ -183,7 +192,8 @@ abstract class PdfAbstract extends RenderAbstract {
         return TRUE;
     }
 
-    protected function _renderSingleVerse($verse) {
+    protected function _renderSingleVerse($verse) 
+    {
 
         if($this->pdf_verses_paragraph === 'auto') {
             $this->pdf_verses_paragraph = (strpos($verse->text, '¶') !== FALSE);
@@ -323,7 +333,8 @@ abstract class PdfAbstract extends RenderAbstract {
         $this->TCPDF->Ln(); 
     }
 
-    protected function _renderFinish() {
+    protected function _renderFinish() 
+    {
         $this->_writeText();
 
         $this->TCPDF->setEqualColumns(0);
@@ -336,6 +347,7 @@ abstract class PdfAbstract extends RenderAbstract {
         $this->TCPDF->SetMargins($this->pdf_margin_inside, $this->pdf_top_margin, $this->pdf_margin_outside);
 
         // add a new page for TOC
+        
         $this->TCPDF->addTOCPage();
 
         // write the TOC title
@@ -359,6 +371,7 @@ abstract class PdfAbstract extends RenderAbstract {
         $this->TCPDF->setEqualColumns(0);
         // end of TOC page
         $this->TCPDF->endTOCPage();
+        
 
         $filepath = $this->getRenderFilePath(TRUE);
         $this->TCPDF->Output($filepath, 'F');
@@ -366,7 +379,8 @@ abstract class PdfAbstract extends RenderAbstract {
         return TRUE;
     }
 
-    protected function _renderNewBook($book, $book_name, $chapter = 1) {
+    protected function _renderNewBook($book, $book_name, $chapter = 1) 
+    {
         if($this->pdf_verses_paragraph && $this->text_pending) {
             // $this->text_pending .= '<br />';
         }
@@ -392,10 +406,22 @@ abstract class PdfAbstract extends RenderAbstract {
         $height_units = $this->TCPDF->pixelsToUnits($height_pixel);
         $this->TCPDF->checkPageBreak($height_units);
 
-        $this->TCPDF->Bookmark($book_name, 1);
-        $this->TCPDF->Write(0, strtoupper($book_name), '', FALSE, $this->pdf_book_align);
+        $this->TCPDF->Bookmark($this->strtoupper($book_name), 1);
+        $this->TCPDF->Write(0, $this->strPreFormat($book_name), '', FALSE, $this->pdf_book_align);
         $this->TCPDF->Ln();
         $this->_renderNewChapter($chapter);
+    }
+
+    protected function strtoupper($text) 
+    {
+        // $text = mb_strtoupper($text, 'UTF-8');
+        return $text;
+    }
+
+    protected function strPreFormat($text)
+    {
+        // $text = TCPDF_FONTS::UTF8ToUTF16BE($text, false, true, $this->TCPDF->getCurrentFont());
+        return $text;
     }
 
     protected function _renderTestamentHeader($testament) 
@@ -411,6 +437,7 @@ abstract class PdfAbstract extends RenderAbstract {
             $this->TCPDF->addPage();
         } 
         else {
+            // $testament = $this->TCPDF->formatTitle($testament);
             $this->TCPDF->Bookmark($testament);
         }
     }
@@ -516,7 +543,8 @@ abstract class PdfAbstract extends RenderAbstract {
         return static::$name . ', ' . $format . $woc;
     }
 
-    public static function getDescription() {
+    public static function getDescription() 
+    {
         $desc = static::$description;
 
         if(static::$pdf_red_word_tag == 'u' || static::$pdf_red_word_tag == 'b') {

@@ -250,7 +250,7 @@ abstract class RenderAbstract
         }
 
         if($this->debug) {
-            $Query->where($table . '.id', '<', 100);
+            $Query->where($table . '.id', '<', 200);
         }
 
         $closure = function($rows) {
