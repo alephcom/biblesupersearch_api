@@ -54,6 +54,17 @@ abstract class PdfAbstract extends RenderAbstract
     protected $pdf_avoid_html           = false; // If TRUE, avoid using HTML tages in the text.
     protected $pdf_allow_bold           = false; // If FALSE, do not use bold text in the PDF.  This is useful for some languages that do not support bold text.
 
+    protected $pdf_no_styles            = false; // If TRUE, do not use any styles (Bold, UL, red letter) in the PDF
+
+    protected $pdf_no_styles_defaults = [
+        'pdf_header_style'  => '',
+        'pdf_book_style'    => '',
+        'pdf_chapter_style' => '',
+        'pdf_allow_bold'    => false,
+        'pdf_brackets_to_italics' => false,
+        'pdf_avoid_html' => true,
+    ];
+
     protected $pdf_language_overrides = [
         'ar' => [
             // 'pdf_font_family'   => 'aefurat', // do not use
@@ -61,14 +72,38 @@ abstract class PdfAbstract extends RenderAbstract
         ],
         'bn' => [
             'pdf_chapter_size' => 9,
-            'pdf_header_style' => '',
-            'pdf_book_style'   => '',
-            'pdf_chapter_style' => '',
-            'pdf_allow_bold' => false,
-            
-            // 'pdf_font_family'  => 'solaimanlipi',
-            // 'pdf_font_family'  => 'freesans',
+            'pdf_no_styles' => true,
         ],
+        'te' => [
+            'pdf_no_styles' => true,
+            // 'pdf_font_family' => 'notoserifteluguvariablefont_wght',
+            // Font path is relative to resources/fonts 
+            // pdf_font_family is automatically set when the font is loaded
+            'font_path' => 'Noto_Serif_Telugu/static/NotoSerifTelugu-Regular.ttf',
+        ],
+        'pa' => [
+            'pdf_no_styles' => true,
+        ],
+        'gu' => ['pdf_no_styles' => true],
+        'bo' => [
+            'pdf_no_styles' => true,
+            'font_path' => 'Noto_Serif_Tibetan/static/NotoSerifTibetan-Regular.ttf',
+        ],
+        'ug' => ['pdf_no_styles' => true],
+        'ta' => ['pdf_no_styles' => true],
+        'kn' => [
+            'pdf_no_styles' => true,
+            'font_path' => 'Noto_Serif_Kannada/static/NotoSerifKannada-Regular.ttf',
+        ],
+        'my' => [
+            'pdf_no_styles' => true,
+            // 'font_path' => 'Noto_Serif_Myanmar/NotoSerifMyanmar-Regular.ttf', // The Noto Myanmar font breaks TCPDF
+            //'font_path' => 'myanmar/Pyidaungsu/Pyidaungsu-1.8.3_Regular.ttf', // mostly works?  (dashed circle characters?)
+            'font_path' => 'myanmar/Pyidaungsu/Myanmar3-2018.ttf',  // works
+        ],
+        'am' => ['pdf_no_styles' => true],
+        // 'gu' => ['pdf_no_styles' => true],
+        // 'gu' => ['pdf_no_styles' => true],
         'zh' => [
             'pdf_font_family' => 'msungstdlight',
         ],        
@@ -77,7 +112,6 @@ abstract class PdfAbstract extends RenderAbstract
         ],        
         'ko' => [
             'pdf_font_family' => 'cid0kr',
-            // 'pdf_font_family' => 'cid0jp',
         ],
         'th' => [
             // 'pdf_columns' => 3,
@@ -111,13 +145,23 @@ abstract class PdfAbstract extends RenderAbstract
         $this->pdf_margin_outside = $this->pdf_margin_outside ?: $this->pdf_margin;
         $this->pdf_margin_inside  = $this->pdf_margin_inside  ?: $this->pdf_margin;
 
-
-
         $format = static::$pdf_page_format ?: [$this->pdf_width, $this->pdf_height];
         $this->TCPDF  = new $this->tcpdf_class($this->pdf_orientation, $this->pdf_unit, $format);
         $this->TCPDF->setHeaderMargin(10);
         $this->TCPDF->setFooterMargin(0);
         $this->TCPDF->allow_bold = $this->pdf_allow_bold;
+
+        //$res = TCPDF_FONTS::addTTFfont(__DIR__ . '/../../resources/fonts/noto_serif_telugu/NotoSerifTelugu-VariableFont_wght.ttf', 'TrueTypeUnicode', '', 96);
+
+        //var_dump(is_file( __DIR__ . '/../../resources/fonts/noto_serif_telugu/static/NotoSerifTelugu-Regular.ttf'));
+
+        // $res = $this->TCPDF->AddFont('bobski', '', __DIR__ . '/../../resources/fonts/noto_serif_telugu/NotoSerifTelugu-VariableFont_wght.ttf');
+        // $res = $this->TCPDF->AddFont('bobski', '', __DIR__ . '/../../resources/fonts/noto_serif_telugu/static/NotoSerifTelugu-Regular.ttf');
+        // // $res = $this->TCPDF->addTTFfont(__FILE__ . '/../../resources/fonts/noto_serif/telugu/NotoSerifTelugu-VariableFont_wght.ttf');
+
+        // print_r($res);
+        // var_dump($res);
+        // die();
         
         if(static::$load_fonts) {
             $this->_initiateFonts();
@@ -482,7 +526,26 @@ abstract class PdfAbstract extends RenderAbstract
     protected function _applyPdfLanguageOverride() 
     {
         if(array_key_exists($this->Bible->lang_short, $this->pdf_language_overrides) && is_array($this->pdf_language_overrides[ $this->Bible->lang_short ])) {
-            foreach($this->pdf_language_overrides[ $this->Bible->lang_short ] as $key => $value) {
+            $ov = $this->pdf_language_overrides[ $this->Bible->lang_short ];
+
+            if(array_key_exists('font_path', $ov)) {
+                $full_path = __DIR__ . '/../../resources/fonts/' . $ov['font_path'];
+                $ov['pdf_font_family'] = TCPDF_FONTS::addTTFfont($full_path);
+
+                if(!$ov['pdf_font_family'] ) {
+                    die('Font not found: resources/fonts/' . $ov['font_path']);
+                }
+                
+                unset($ov['font_path']);
+            }
+            
+            foreach($ov as $key => $value) {
+                $this->$key = $value;
+            }
+        }
+
+        if($this->pdf_no_styles) {
+            foreach($this->pdf_no_styles_defaults as $key => $value) {
                 $this->$key = $value;
             }
         }
