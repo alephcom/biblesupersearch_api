@@ -1210,6 +1210,11 @@ class Engine
         }
     }
 
+    public function actionRequirements($input)
+    {
+        return \App\InstallManager::getChecklist();
+    }
+
     protected function _formatDataStructure($results, $input, $Passages, $Search) 
     {
         $format_type = (!empty($input['data_format'])) ? $input['data_format'] : $this->default_data_format;
