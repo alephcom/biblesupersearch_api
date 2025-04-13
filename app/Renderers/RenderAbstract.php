@@ -419,7 +419,7 @@ abstract class RenderAbstract
         $dir = $relative ? '' : static::getRenderBasePath();
         $dir .= $renderer;
 
-        if(!is_dir($dir) && $create_dir && !relative) {
+        if(!is_dir($dir) && $create_dir && !$relative) {
             mkdir($dir, 0775, TRUE);
             chmod($dir, 0775);
         }

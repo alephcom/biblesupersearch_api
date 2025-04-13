@@ -29,9 +29,6 @@ namespace {
             \Illuminate\Foundation\Bootstrap\HandleExceptions::flushState();
             $this->use_named_bindings = config('app.query_use_named_placeholders');
             $this->test_http = env('APP_TEST_HTTP', FALSE);
-
-            
-
             return $app;
         }
 
