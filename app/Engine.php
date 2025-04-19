@@ -986,6 +986,8 @@ class Engine
         $response->name                     = config('app.name');
         $response->hash                     = $this->_getNameHash();
         $response->version                  = config('app.version');
+        $response->api_version              = config('app.api_version');
+        $response->api_version_list         = config('app.api_version_list');
         $response->environment              = config('app.env');
         $response->research_desc            = config('bss.research_description');
         $response->parallel_lang_search     = config('bss.parallel_search_different_languages');
@@ -1132,10 +1134,12 @@ class Engine
     public function actionVersion($input) 
     {
         $response = new \stdClass;
-        $response->name         = config('app.name');
-        $response->hash         = $this->_getNameHash();
-        $response->version      = config('app.version');
-        $response->environment  = config('app.env');
+        $response->name             = config('app.name');
+        $response->hash             = $this->_getNameHash();
+        $response->version          = config('app.version');
+        $response->api_version      = config('app.api_version');
+        $response->api_version_list = config('app.api_version_list');
+        $response->environment      = config('app.env');
 
         // pher - unpublished property 'php version' checks against current required PHP version
         if(array_key_exists('pher', $input) && $input['pher']) {

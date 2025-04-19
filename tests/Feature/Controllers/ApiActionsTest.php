@@ -68,6 +68,17 @@ class ApiActionsTest extends TestCase
         $this->assertEquals('KJV', $response['results']['bibles']['kjv']['shortname']); 
         $this->assertEquals(config('app.version'), $response['results']['version']);
         $this->assertEquals(config('app.name'), $response['results']['name']);
+
+        // Versioned
+        // GET
+        $response = $this->getJson('/api/v2/statics?language=es');
+
+        $response->assertStatus(200);        
+        $this->assertEquals(0, $response['error_level']);
+        $this->assertEquals('Romanos', $response['results']['books'][44]['name']); 
+        $this->assertEquals('KJV', $response['results']['bibles']['kjv']['shortname']); 
+        $this->assertEquals(config('app.version'), $response['results']['version']);
+        $this->assertEquals(config('app.name'), $response['results']['name']);
     }       
 
     /**
@@ -137,6 +148,7 @@ class ApiActionsTest extends TestCase
 
         $response->assertStatus(400);        
         $this->assertEquals(4, $response['error_level']);
+        $this->assertContains(__('errors.no_query'), $response['errors']);
         
         // POST - empty request
         $response = $this->postJson('/api');
@@ -155,6 +167,42 @@ class ApiActionsTest extends TestCase
         $this->assertEquals(0, $response['error_level']);
         $this->assertEquals(338, $response['paging']['total']);
     }    
+
+    /**
+     * Tests of the default ('query') action
+     *
+     * @return void
+     */
+    public function testActionDefaultQueryVersioned()
+    {
+        // GET - empty request
+        $response = $this->getJson('/api/v2');
+
+        if($response->status() == 429) {
+            $this->markTestSkipped('429 Skipping due to rate limiting');
+        }
+
+        $response->assertStatus(400);        
+        $this->assertEquals(4, $response['error_level']);
+        $this->assertContains(__('errors.no_query'), $response['errors']);
+        
+        // POST - empty request
+        $response = $this->postJson('/api/v2');
+        $response->assertStatus(400);        
+        $this->assertEquals(4, $response['error_level']);
+
+        // GET
+        $response = $this->getJson('/api/v2?request=faith&bible=kjv');
+        $response->assertStatus(200);
+        $this->assertEquals(0, $response['error_level']);
+        $this->assertEquals(338, $response['paging']['total']);
+
+        // POST
+        $response = $this->postJson('/api/v2', ['request' => 'faith', 'bible' => 'kjv']);
+        $response->assertStatus(200);
+        $this->assertEquals(0, $response['error_level']);
+        $this->assertEquals(338, $response['paging']['total']);
+    }  
 
     /**
      * Tests of the 'query' action
