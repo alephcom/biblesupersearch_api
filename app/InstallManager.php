@@ -225,7 +225,7 @@ class InstallManager
 
 
         $checklist[] = ['type' => 'header', 'label' => 'Software'];
-        $checklist[] = ['type' => 'item', 'label' => 'PHP Version >= ' . $php_version . ' (' . $installed_php . ')', 'success' => $php_success];
+        $checklist[] = ['type' => 'item', 'label' => 'PHP Version >= ' . $php_version . ' (Current = ' . $installed_php . ')', 'success' => $php_success];
 
         // $extensions = ['OpenSSL', 'PDO', 'Mbstring', 'Tokenizer', 'XML', 'Zip', 'Ctype', 'JSON', 'BCMath', 'gd', 'Fileinfo'];
         // $rec_extensions = [];
