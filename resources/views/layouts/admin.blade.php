@@ -69,6 +69,7 @@ $u = url('');
 
         <script>
             var laravelCsrfToken = '{{ csrf_token() }}';
+            var baseAppUrl = '{{ $u }}';
         </script>
         <title>{{ config('app.name', 'Bible SuperSearch API') }} - Manager</title>
     </head>

@@ -1,5 +1,8 @@
 Bible SuperSearch API Changelog
 
+= 6.0.5
+* Fixed issue deleting renderd files when not using a dedicated domain.
+
 = 6.0.4
 * Optimized text rendering
 
