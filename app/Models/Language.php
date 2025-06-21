@@ -130,7 +130,9 @@ class Language extends Model
 
     public static function haveSupport($attribute)
     {
-        LanguageAttr::where('attribute', $attribute)->pluck('code');
+        return LanguageAttr::where('attribute', $attribute)
+            ->where('value', 1)
+            ->pluck('code');
     }
 
     public function setAttr($attribute, $value)
@@ -173,7 +175,8 @@ class Language extends Model
         return (bool) $Language->rtl;
     }
 
-    public static function findByCode($code, $fail = false) {
+    public static function findByCode($code, $fail = false) 
+    {
         if($fail) {
             $Language = static::where('code', $code)->firstOrFail();
         } else {
