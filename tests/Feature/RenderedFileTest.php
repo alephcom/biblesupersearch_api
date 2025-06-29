@@ -169,8 +169,11 @@ class RenderedFileTest extends TestCase
         $cr = str_getcsv($file_data[3], escape: $this->csvesc)[0];
 
         $this->assertStringNotContainsString($find_deriv_cr, $cr);
-        $this->assertStringContainsString($find_bss_url, $cr);
-        $this->assertStringContainsString($find_app_url, $cr);
+        
+        if(!config('app.config_cache')) {
+            $this->assertStringContainsString($find_bss_url, $cr);
+            $this->assertStringContainsString($find_app_url, $cr);
+        }
 
         // Add a deriv copyright statement
         config(['download.derivative_copyright_statement' => $test_deriv_cr]);

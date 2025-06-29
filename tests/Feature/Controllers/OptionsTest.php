@@ -15,9 +15,14 @@ class OptionsTest extends TestCase
     
     protected $run_in_production = false;
 
-    protected function _init() {
+    protected function _init() 
+    {
         if(!$this->run_in_production && config('app.env') == 'production') {
             $this->markTestSkipped('This test skipped in production');
+        }
+
+        if(config('app.config_cache') && config('app.url') != env('APP_URL')) {
+            $this->markTestSkipped('This test skipped when config caching is enabled');
         }
     }
 
