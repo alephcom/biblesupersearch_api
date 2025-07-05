@@ -63,6 +63,9 @@ class ParallelTest extends TestCase {
     }
 
     public function testMaxResults() {
+
+        // $this->markTestIncomplete('This test takes too long to run!');
+        
         if(!Bible::isEnabled('bishops')) {
             $this->markTestSkipped('Bible bishops not installed or enabled');
         }

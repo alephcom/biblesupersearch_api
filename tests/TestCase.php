@@ -29,7 +29,7 @@ class TestCase extends BaseTestCase
         $app->make(\Illuminate\Contracts\Console\Kernel::class)->bootstrap();
         \Illuminate\Foundation\Bootstrap\HandleExceptions::flushState();
         $this->use_named_bindings = config('app.query_use_named_placeholders');
-        $this->test_http = env('APP_TEST_HTTP', FALSE);
+        $this->test_http = config('app.test_http');
         return $app;
     }
 

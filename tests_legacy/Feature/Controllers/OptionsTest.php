@@ -21,7 +21,7 @@ class OptionsTest extends \TestCase
             $this->markTestSkipped('This test skipped in production');
         }
 
-        if(config('app.config_cache') && config('app.url') != env('APP_URL')) {
+        if(config('app.config_cache') && config('app.url') != config('app.url_env')) {
             $this->markTestSkipped('This test skipped when config caching is enabled');
         }
     }

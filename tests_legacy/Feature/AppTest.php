@@ -8,7 +8,7 @@ class AppTest extends TestCase {
 
     public function testPremiumDisableConfig() {
         $this->assertTrue(TRUE);
-        $env = env('APP_ENV', 'production');
+        $env = config('app.env');
 
         if($env == 'production') {
             $this->assertFalse( config('app.premium_disabled'), 'Config app.premium_disabled must be FALSE in production');

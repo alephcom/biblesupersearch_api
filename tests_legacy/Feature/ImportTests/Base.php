@@ -39,7 +39,7 @@ class Base extends TestCase
     #[Depends('testInit')]
     public function testImportCheck(array $shared) 
     {
-        if(config('app.config_cache') && config('app.url') != env('APP_URL')) {
+        if(config('app.config_cache') && config('app.url') != config('app.url_env')) {
             $this->markTestSkipped('This test skipped when config caching is enabled');
         }
 
