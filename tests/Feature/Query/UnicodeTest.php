@@ -17,10 +17,11 @@ class UnicodeTest extends TestCase
             $this->markTestSkipped('Bible rvg not installed or enabled');
         }
 
-        $Engine = Engine::getInstance();
+        $Engine = Engine::freshInstance();
         $Engine->setDefaultDataType('raw');
         $results = $Engine->actionQuery(['bible' => 'rvg', 'request' => 'Señor', 'whole_words' => FALSE]);
-        $this->assertFalse($Engine->hasErrors());
+        $this->assertNotEmpty($results['rvg']);
+        $this->assertCount(config('bss.pagination.limit'), $results['rvg']);
     }
 
     public function testSpanishLookup() 
@@ -44,12 +45,14 @@ class UnicodeTest extends TestCase
             $this->markTestSkipped('Bible diodati not installed or enabled');
         }
 
-        $Engine = Engine::getInstance();
+        $Engine = Engine::freshInstance();
         $Engine->setDefaultDataType('raw');
         $results = $Engine->actionQuery(['bible' => 'diodati', 'request' => 'l’uomo', 'whole_words' => FALSE]);
-        $this->assertFalse($Engine->hasErrors());        
+        $this->assertNotEmpty($results['diodati']);
+        $this->assertCount(config('bss.pagination.limit'), $results['diodati']);
         $results = $Engine->actionQuery(['bible' => 'diodati', 'search' => 'l’uomo', 'whole_words' => FALSE]);
-        $this->assertFalse($Engine->hasErrors());
+        $this->assertNotEmpty($results['diodati']);
+        $this->assertCount(config('bss.pagination.limit'), $results['diodati']);
 
         $results = $Engine->actionQuery(['bible' => 'diodati', 'request' => '(l’uomo) (alla)', 'whole_words' => FALSE]);
         $this->assertFalse($Engine->hasErrors(), 'Failed on using implied AND');        
@@ -80,12 +83,16 @@ class UnicodeTest extends TestCase
             $this->markTestSkipped('Bible svd (Smith Van Dyke) not installed or enabled');
         }
 
-        $Engine = Engine::getInstance();
+        $Engine = Engine::freshInstance();
         $Engine->setDefaultDataType('raw');
         $results = $Engine->actionQuery(['bible' => 'svd', 'request' => 'المسيح ', 'whole_words' => FALSE]);
-        $this->assertFalse($Engine->hasErrors());        
+        $this->assertNotEmpty($results['svd']);
+        $this->assertCount(config('bss.pagination.limit'), $results['svd']);
+
         $results = $Engine->actionQuery(['bible' => 'svd', 'search' => 'المسيح ', 'whole_words' => FALSE]);
         $this->assertFalse($Engine->hasErrors());
+        $this->assertNotEmpty($results['svd']);
+        $this->assertCount(config('bss.pagination.limit'), $results['svd']);
     }
 
     public function testThai() 
@@ -126,7 +133,6 @@ class UnicodeTest extends TestCase
         $Engine->setDefaultPageAll(TRUE);
 
         // Testing removing unsafe characters
-
         $search_words_arr = [];
         $search_words_arr[] = 'Iesākumā Dievs radīja debesis un zemi';
         $search_words_arr[] = 'Tad Dieva bērni redzēja cilvēku meitas ka tās bija skaistas un ņēma sev sievas kādas tiem patika';
@@ -157,6 +163,7 @@ class UnicodeTest extends TestCase
         $query['search_type'] = 'any_word';
         // $query['search'] = $search_words;
         $results = $Engine->actionQuery($query);
+
         // Will probably results in too many results error
         // Just going to assert that it has results.
         $this->assertIsArray($results['lv_gluck_8']);
@@ -184,6 +191,7 @@ class UnicodeTest extends TestCase
         $query['search_type'] = 'any_word';
         // $query['search'] = $search_words;
         $results = $Engine->actionQuery($query);
+
         // Will probably results in too many results error
         // Just going to assert that it has results.
         $this->assertIsArray($results['lv_gluck_8']);
@@ -211,6 +219,7 @@ class UnicodeTest extends TestCase
 
         $query['search_type'] = 'any_word';
         $results = $Engine->actionQuery($query);
+
         // Will probably results in too many results error
         // Just going to assert that it has results.
         $this->assertIsArray($results['lv_gluck_8']);
@@ -241,6 +250,7 @@ class UnicodeTest extends TestCase
 
         $query['search_type'] = 'any_word';
         $results = $Engine->actionQuery($query);
+
         // Will probably results in too many results error
         // Just going to assert that it has results.
         $this->assertIsArray($results['lv_gluck_8']);
@@ -268,6 +278,7 @@ class UnicodeTest extends TestCase
 
         $query['search_type'] = 'any_word';
         $results = $Engine->actionQuery($query);
+
         // Will probably results in too many results error
         // Just going to assert that it has results.
         $this->assertIsArray($results['lv_gluck_8']);

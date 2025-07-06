@@ -19,7 +19,7 @@ class ImportSpreadsheetTest extends TestCase {
     ];    
 
     protected $files_lite = [
-        'kjv_full.csv'  => 'csv',  // No speed difference for CSV
+        'kjv_min.csv'  => 'csv',  // No speed difference for CSV
         'kjv_min.xlsx'  => 'excel',
         'kjv_min.ods'   => 'ods',
     ];
@@ -422,7 +422,8 @@ class ImportSpreadsheetTest extends TestCase {
 
     protected function _generateUploadedFile($file_name) {
         // if(!array_key_exists($file_name, $this->UploadedFiles)) {
-            $file_path = dirname(__FILE__) . '/test_spreadsheets/' . $file_name;
+            // $file_path = dirname(__FILE__) . '/test_spreadsheets/' . $file_name;
+            $file_path = dirname(__FILE__) . '/../../tests/Feature/Import/test_spreadsheets/' . $file_name;
             return new UploadedFile($file_path, $file_name, NULL, NULL, TRUE);
             $this->UploadedFiles[$file_name] = new UploadedFile($file_path, $file_name, NULL, NULL, TRUE);
         // }
