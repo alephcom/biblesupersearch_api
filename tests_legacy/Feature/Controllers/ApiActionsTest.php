@@ -45,7 +45,7 @@ class ApiActionsTest extends TestCase
     public function testActionStatics()
     {
         // GET
-        $response = $this->getJson('/api/statics?language=es');
+        $response = $this->withoutMiddleware(ThrottleRequests::class)->getJson('/api/statics?language=es');
 
         if($response->status() == 429) {
             $this->markTestSkipped('429 Skipping due to rate limiting');

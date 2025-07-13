@@ -274,4 +274,44 @@ class SearchTest extends TestCase
         $this->assertTrue($search->is_special);
         $this->assertTrue($search->__get('is_special'));
     }
+
+    public function _testSetSearchSetsIsSpecial()
+    {
+        $this->markTestIncomplete('Mockbuilder not found.');
+
+        $search = $this->getMockBuilder(Search::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['setSearch', 'isSpecial'])
+            ->getMock();
+
+        $search->expects($this->once())
+            ->method('isSpecial')
+            ->with('test', null)
+            ->willReturn(true);
+
+        $search->search_type = null;
+        $search->setSearch('test');
+        $this->assertTrue($search->is_special);
+    }
+
+    public function testIsSpecialDetectsProximity()
+    {
+        $this->assertTrue(Search::isSpecial('word1 ~p(3) word2', 'and'));
+        $this->assertFalse(Search::isSpecial('word1 word2', 'and'));
+        $this->assertTrue(Search::isSpecial('word1', 'proximity'));
+        $this->assertFalse(Search::isSpecial('word1', 'boolean'));
+    }
+
+    public function testContainsProximityOperators()
+    {
+        $this->assertTrue(Search::containsProximityOperators('hello ~p(5) world'));
+        $this->assertTrue(Search::containsProximityOperators('foo ~c bar'));
+        $this->assertFalse(Search::containsProximityOperators('foo bar'));
+    }
+
+    public function testGetTermType()
+    {
+        $this->assertEquals('strongs', Search::getTermType('G123'));
+        $this->assertNotEquals('strongs', Search::getTermType('word'));
+    }
 }

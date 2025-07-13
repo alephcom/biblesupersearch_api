@@ -10,6 +10,7 @@ use Illuminate\Http\UploadedFile;
 use App\User;
 use App\Models\Bible;
 use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 class BibleControllerTest extends TestCase
 {
@@ -39,6 +40,7 @@ class BibleControllerTest extends TestCase
         $this->files = ($this->quick_mode) ? $this->files_lite : $this->files_full;
     }
 
+    #[RunInSeparateProcess]
     public function testInit() 
     {
         if(!$this->test_http) {
