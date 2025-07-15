@@ -1,13 +1,20 @@
 <?php
 
+namespace Tests\Feature\Models;
+
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
+
+use Tests\TestCase;
 use App\Models\Bible;
 
 class BibleTest extends TestCase {
 
-    public function testBibleAndVerses() {
+    public function testBibleAndVerses() 
+    {
         $kjv = Bible::findByModule('kjv');
         $Verses = $kjv->verses();
         // The verses class exists for this one
@@ -15,29 +22,14 @@ class BibleTest extends TestCase {
         $this->assertEquals('App\Models\Verses\Kjv', get_class($Verses));
     }
 
-    public function testNonExistantBible() {
-        try {
-            $niv = Bible::findByModule('dne1', TRUE); // Will throw an exception when not found
-        }
-        catch (Exception $e) {
-            $this->assertEquals('Illuminate\Database\Eloquent\ModelNotFoundException', get_class($e));
-        }
-
-        // Class auto-generation has been disabled, commenting this out
-        // Test auto generation of verses sub-class
-        // The class file does not exist for the NIV - we don't support it!
-        // However, we can force it to generate a Verses class for us.
-        /*
-        $Bible = Bible::findByModule('kjv'); // Grab existing Bible
-        $Bible->module = 'niv'; // Change the module.  Warning - do not save
-        $Verses = $Bible->verses(TRUE); // Reload the verses instance
-        $this->assertFalse($Verses->classFileExists()); // Make sure the class file exists flag is FALSE
-        $this->assertInstanceOf('App\Models\Verses\Niv', $Verses);
-         *
-         */
+    public function testNonExistantBible() 
+    {
+        $this->expectException(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
+        $niv = Bible::findByModule('dne1', TRUE); // Will throw an exception when not found
     }
 
-    public function testAddBible() {
+    public function testAddBible() 
+    {
         $module = 'bobs_test_bible';
         $Bible = Bible::findByModule($module);
 
@@ -86,13 +78,15 @@ class BibleTest extends TestCase {
     }
 
     /* PUBLIC METHOD TESTS */
-    public function testMethodGetVerseClassNameByModule() {
+    public function testMethodGetVerseClassNameByModule() 
+    {
         // We don't test if the module value would make a valid class
         $class_name = Bible::getVerseClassNameByModule('kjv');
         $this->assertEquals('App\Models\Verses\Kjv', $class_name);
     }
 
-    public function testMethodGetVerseClassName() {
+    public function testMethodGetVerseClassName() 
+    {
         $kjv = Bible::findByModule('kjv');
         $class_name = $kjv->getVerseClassName();
         $this->assertEquals('App\Models\Verses\Kjv', $class_name);
@@ -106,7 +100,8 @@ class BibleTest extends TestCase {
         }
     }
 
-    public function testBibleTable() {
+    public function testBibleTable() 
+    {
         // Raw queries require us to include the db prefix
         $prefix = DB::getTablePrefix();
         $bibles = DB::select(sprintf('SELECT * FROM %sbibles LIMIT 1', $prefix));
@@ -123,7 +118,8 @@ class BibleTest extends TestCase {
         $this->assertInstanceOf('App\Models\Bible', $Bible);
     }
 
-    public function testBibleMigrate() {
+    public function testBibleMigrate() 
+    {
         $kjv = Bible::findByModule('kjv');
         $of_path = Bible::getModulePath() . $kjv->getModuleFileName();
         $un_path = Bible::getUnofficialModulePath() . $kjv->getModuleFileName();
@@ -152,7 +148,8 @@ class BibleTest extends TestCase {
         $this->assertTrue(is_file($of_path));
     }
 
-    public function testBibleChapterVerse() {
+    public function testBibleChapterVerse() 
+    {
         $kjv = Bible::findByModule('kjv');
 
         $counts = $kjv->getChapterVerseCount();
