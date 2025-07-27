@@ -1,14 +1,18 @@
 <?php
 
+namespace Tests\Feature\Query;
 //
+use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use App\Engine;
 
-class NavigationTest extends TestCase {
+class NavigationTest extends TestCase 
+{
 
-    public function testNavBasic() {
+    public function testNavBasic() 
+    {
         $Engine = new Engine();
         $results = $Engine->actionQuery(['bible' => 'kjv', 'reference' => 'Jn 6', 'context' => TRUE]);
         $this->assertFalse($Engine->hasErrors());
@@ -43,7 +47,8 @@ class NavigationTest extends TestCase {
         $this->assertEquals(6,  $results[0]['nav']['ccc']); // Current chapter chapter
     }
 
-    public function testNavMultiReferences() {
+    public function testNavMultiReferences() 
+    {
         $Engine = new Engine();
         $results = $Engine->actionQuery(['bible' => 'kjv', 'reference' => 'Jn 5 - 7', 'context' => TRUE]);
         $this->assertFalse($Engine->hasErrors());
@@ -66,7 +71,8 @@ class NavigationTest extends TestCase {
         $this->assertEquals(NULL,     $results[2]['nav']['cur_chapter']);
     }
 
-    public function testNavBeginningGen() {
+    public function testNavBeginningGen() 
+    {
         $Engine = new Engine();
         $results = $Engine->actionQuery(['bible' => 'kjv', 'reference' => 'Gen 1', 'context' => TRUE]);
         $this->assertFalse($Engine->hasErrors());
@@ -91,7 +97,8 @@ class NavigationTest extends TestCase {
         $this->assertEquals('Genesis 7', $results[0]['nav']['next_chapter']);
     }
 
-    public function testNavEndRev() {
+    public function testNavEndRev() 
+    {
         $Engine = new Engine();
         $results = $Engine->actionQuery(['bible' => 'kjv', 'reference' => 'Rev 22', 'context' => TRUE]);
         $this->assertFalse($Engine->hasErrors());
@@ -116,7 +123,8 @@ class NavigationTest extends TestCase {
         $this->assertEquals('Revelation 19', $results[0]['nav']['next_chapter']);
     }
 
-    public function testContext() {
+    public function testContext() 
+    {
         $Engine = new Engine();
         $Engine->setDefaultDataType('raw');
 
@@ -130,7 +138,8 @@ class NavigationTest extends TestCase {
         $this->assertEquals(33 + $default_range, $results['kjv'][$default_range * 2]->verse);
     }
 
-    public function testContextEndCondition() {
+    public function testContextEndCondition() 
+    {
         $Engine = new Engine();
         $Engine->setDefaultDataType('raw');
 
@@ -144,7 +153,8 @@ class NavigationTest extends TestCase {
         $this->assertEquals(71, $results['kjv'][$default_range]->verse);
     }
 
-    public function testContextBeginningCondition() {
+    public function testContextBeginningCondition() 
+    {
         $Engine = new Engine();
         $Engine->setDefaultDataType('raw');
 
@@ -158,7 +168,8 @@ class NavigationTest extends TestCase {
         $this->assertEquals(1 + $default_range, $results['kjv'][$default_range]->verse);
     }
 
-    public function testContextCustomRange() {
+    public function testContextCustomRange() 
+    {
         $Engine = new Engine();
         $Engine->setDefaultDataType('raw');
 

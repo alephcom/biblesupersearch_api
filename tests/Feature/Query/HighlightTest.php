@@ -1,12 +1,18 @@
 <?php
 
+namespace Tests\Feature\Query;
+
+use Tests\TestCase;
+
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use App\Engine;
 
-class HighlightTest extends TestCase {
-    public function testNoHighlight() {
+class HighlightTest extends TestCase 
+{
+    public function testNoHighlight() 
+    {
         $Engine = new Engine();
         $Engine->setDefaultDataType('raw');
         $results = $Engine->actionQuery(['bible' => 'kjv', 'reference' => 'Rom 12', 'search' => 'be for']);
@@ -17,7 +23,8 @@ class HighlightTest extends TestCase {
         }
     }
 
-    public function testBasic() {
+    public function testBasic() 
+    {
         $Engine = new Engine();
         $Engine->setDefaultDataType('raw');
         $results = $Engine->actionQuery(['bible' => 'kjv', 'reference' => 'Rom 12', 'search' => 'be for', 'highlight' => TRUE]);
@@ -28,7 +35,8 @@ class HighlightTest extends TestCase {
         }
     }
 
-    public function testCustomTag() {
+    public function testCustomTag() 
+    {
         $Engine = new Engine();
         $Engine->setDefaultDataType('raw');
         $tag = 'span';
@@ -39,7 +47,8 @@ class HighlightTest extends TestCase {
         }
     }
 
-    public function testWholeWordsWildcard() {
+    public function testWholeWordsWildcard() 
+    {
         $Engine = new Engine();
         $Engine->setDefaultDataType('raw');
         $tag = 'em';
@@ -65,7 +74,8 @@ class HighlightTest extends TestCase {
         $this->assertEquals(62, (strpos($verse->text, '</' . $tag . '>')), 'Highlight end tag incorrect: ' . $verse->text);
     }
 
-    public function testWholeWords() {
+    public function testWholeWords() 
+    {
         $Engine = new Engine();
         $Engine->setDefaultDataType('raw');
         $results = $Engine->actionQuery(['bible' => 'kjv', 'reference' => 'Rom 12', 'search' => 'be for', 'highlight' => TRUE, 'whole_words' => TRUE, 'search_type' => 'or']);
@@ -79,7 +89,8 @@ class HighlightTest extends TestCase {
         $this->assertTrue((strpos($results['kjv'][2]->text, '<' . $tag . '>be</' . $tag . '>') === FALSE), 'Be should not be highlighted: ' . $verse->text);
     }
 
-    public function testExactCase() {
+    public function testExactCase() 
+    {
         $Engine = new Engine();
         $Engine->setDefaultDataType('raw');
         $results = $Engine->actionQuery(['bible' => 'kjv', 'reference' => 'Rom 12', 'search' => 'be for', 'highlight' => TRUE, 'exact_case' => TRUE, 'search_type' => 'or']);
@@ -93,7 +104,8 @@ class HighlightTest extends TestCase {
         $this->assertTrue((strpos($results['kjv'][2]->text, '<' . $tag . '>For</' . $tag . '>') === FALSE), 'For should not be highlighted: ' . $verse->text);
     }
 
-    public function testProximity() {
+    public function testProximity() 
+    {
         $Engine = new Engine();
         $Engine->setDefaultDataType('raw');
         $results = $Engine->actionQuery(['bible' => 'kjv', 'reference' => 'Rom', 'search' => 'cometh by hearing', 'highlight' => TRUE, 'search_type' => 'proximity']);
@@ -105,7 +117,8 @@ class HighlightTest extends TestCase {
         }
     }
 
-    public function testExactPhrase() {
+    public function testExactPhrase() 
+    {
         $Engine = new Engine();
         $Engine->setDefaultDataType('raw');
         $results = $Engine->actionQuery(['bible' => 'kjv', 'reference' => 'Rom', 'search' => 'cometh by hearing', 'highlight' => TRUE, 'search_type' => 'phrase']);
@@ -117,7 +130,8 @@ class HighlightTest extends TestCase {
         }
     }
 
-    public function testKeywordWithinKeyword() {
+    public function testKeywordWithinKeyword() 
+    {
         $Engine = new Engine();
         $Engine->setDefaultDataType('raw');
         $tag = config('bss.defaults.highlight_tag');
@@ -131,7 +145,8 @@ class HighlightTest extends TestCase {
     }    
 
     // Query error!
-    public function testKeywordWithinPhrase() {
+    public function testKeywordWithinPhrase() 
+    {
         $Engine = new Engine();
         $Engine->setDefaultDataType('raw');
         $tag = config('bss.defaults.highlight_tag');

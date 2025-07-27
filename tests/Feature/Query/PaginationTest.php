@@ -1,5 +1,8 @@
 <?php
 
+namespace Tests\Feature\Query;
+
+use Tests\TestCase;
 
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
@@ -8,9 +11,11 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use App\Engine;
 use App\Models\Bible;
 
-class PaginationTest extends TestCase {
+class PaginationTest extends TestCase 
+{
 
-    public function testSearchPageFirst() {
+    public function testSearchPageFirst() 
+    {
         $Engine = new Engine();
 
         $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => 'faith', 'whole_words' => TRUE]);
@@ -29,7 +34,8 @@ class PaginationTest extends TestCase {
         $this->assertEquals(config('bss.pagination.limit'), $metadata->paging['per_page']);
     }
 
-    public function testSearchPageFirstMulti() {
+    public function testSearchPageFirstMulti() 
+    {
         $Engine = new Engine();
 
         if(!Bible::isEnabled('tyndale')) {
@@ -49,7 +55,8 @@ class PaginationTest extends TestCase {
         $this->assertEquals(1, $metadata->paging['current_page']);
     }
 
-    public function testSearchPageMiddle() {
+    public function testSearchPageMiddle() 
+    {
         $Engine = new Engine();
 
         $_POST['page'] = 3; // Because Laravel pulls from here
@@ -66,14 +73,16 @@ class PaginationTest extends TestCase {
         $this->assertEquals('4:13', $results[0]['chapter_verse']);
     }
 
-    public function testSearchPageAll() {
+    public function testSearchPageAll() 
+    {
         $Engine = new Engine();
         $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => 'faith', 'whole_words' => TRUE, 'page_all' => TRUE]);
         $this->assertFalse($Engine->hasErrors());
         $this->assertCount(231, $results);
     }    
 
-    public function testSearchPageLimit() {
+    public function testSearchPageLimit() 
+    {
         $Engine = new Engine();
         $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => 'faith', 'page_limit' => 5]);
         $this->assertFalse($Engine->hasErrors());
@@ -84,7 +93,8 @@ class PaginationTest extends TestCase {
         $this->assertCount(15, $results);
     }
 
-    protected function _testViaApi($query) {
+    protected function _testViaApi($query) 
+    {
         $config_cache = config('bss.public_access');
         $config_value = 1;
         $config_changed = false;

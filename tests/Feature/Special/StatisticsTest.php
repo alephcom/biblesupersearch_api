@@ -1,13 +1,14 @@
 <?php
 
+namespace Tests\Feature\Query;
 
+use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Engine;
 
-class StatisticsTest extends TestCase {
+class StatisticsTest extends TestCase 
+{
 
-    
     public function testBasicVerse()
     {
         $Engine = Engine::getInstance();

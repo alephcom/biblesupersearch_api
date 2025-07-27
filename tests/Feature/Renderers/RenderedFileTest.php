@@ -1,10 +1,9 @@
 <?php
 
-namespace TestsLegacy\Feature;
+namespace Tests\Feature\Renderers;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
-use TestsLegacy\TestCase;
 
 class RenderedFileTest extends TestCase
 {

@@ -1,14 +1,16 @@
 <?php
 
+namespace Tests\Feature\Import;
 
+use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use App\Engine;
 use App\ImportManager;
 
-
-class ImportSpreadsheetTest extends TestCase {
+class ImportSpreadsheetTest extends TestCase 
+{
     protected $quick_mode = TRUE;
 
     // Note, the full files are removed from the official release to save space
@@ -41,7 +43,8 @@ class ImportSpreadsheetTest extends TestCase {
      * Use Case: Use has a file containing every possible field we can import
      * They will select all roles, even though several are duplicated
      */
-    public function testAllTheFields() {
+    public function testAllTheFields() 
+    {
         $data = [
             'first_row_data' => 9,
             'col_A' => 'id',
@@ -73,7 +76,8 @@ class ImportSpreadsheetTest extends TestCase {
      *  Test with book name, chapter, verse all in one column 
      *  Use Case: User has 2-column file,  full reference in one column, text in another
      */
-    public function testCombinedBncv() {
+    public function testCombinedBncv() 
+    {
         $data = [
             'first_row_data' => 9,
             'col_A' => NULL,
@@ -105,7 +109,8 @@ class ImportSpreadsheetTest extends TestCase {
      *  Test with chapter and verse in one column 
      *  Use Case: User has 3 column file containing book name, chapter and verse, and text
      */
-    public function testCombinedCv() {
+    public function testCombinedCv() 
+    {
         $data = [
             'first_row_data' => 9,
             'col_A' => NULL,
@@ -141,7 +146,8 @@ class ImportSpreadsheetTest extends TestCase {
      *  Test with everything separate
      *  Use Case: User has 4 column file with everything in it's own column: book name, chapter, verse, and text
      */
-    public function testSeparateBookName() {
+    public function testSeparateBookName() 
+    {
         $data = [
             'first_row_data' => 9,
             'col_A' => NULL,
@@ -173,7 +179,8 @@ class ImportSpreadsheetTest extends TestCase {
      *  Test with everything separate, but book number provided instead of name
      *  Use Case: User has 4 column file with everything in it's own column: book number, chapter, verse, and text
      */
-    public function testSeparateBookNumber() {
+    public function testSeparateBookNumber() 
+    {
         $data = [
             'first_row_data' => 9,
             'col_A' => NULL,
@@ -205,7 +212,8 @@ class ImportSpreadsheetTest extends TestCase {
         }
     }   
 
-    public function testIncorrectFirstRow() {
+    public function testIncorrectFirstRow() 
+    {
         $data = [
             'first_row_data' => 2,
             'col_A' => 'id',
@@ -251,7 +259,8 @@ class ImportSpreadsheetTest extends TestCase {
     /* End deep / slow tests */
 
     /* Tests of superficial configs - QUICK */
-    public function testMissingFirstRow() {
+    public function testMissingFirstRow() 
+    {
         $data = [
             'first_row_data' => NULL,
             'col_A' => 'id',
@@ -280,7 +289,8 @@ class ImportSpreadsheetTest extends TestCase {
         }
     }    
 
-    public function testMissingBook() {
+    public function testMissingBook() 
+    {
         $data = [
             'first_row_data' => 9,
             'col_A' => 'id',
@@ -305,7 +315,8 @@ class ImportSpreadsheetTest extends TestCase {
         }
     }      
 
-    public function testMissingChapter() {
+    public function testMissingChapter() 
+    {
         $data = [
             'first_row_data' => 9,
             'col_A' => 'id',
@@ -334,7 +345,8 @@ class ImportSpreadsheetTest extends TestCase {
         }
     }      
 
-    public function testMissingVerse() {
+    public function testMissingVerse() 
+    {
         $data = [
             'first_row_data' => 9,
             'col_A' => 'id',
@@ -359,7 +371,8 @@ class ImportSpreadsheetTest extends TestCase {
         }
     }        
 
-    public function testMissingText() {
+    public function testMissingText() 
+    {
         $data = [
             'first_row_data' => 9,
             'col_A' => 'id',
@@ -384,7 +397,8 @@ class ImportSpreadsheetTest extends TestCase {
         }
     }       
 
-    public function testMissingAllColumns() {
+    public function testMissingAllColumns() 
+    {
         $data = [
             'first_row_data' => 9,
             'col_A' => 'id',
@@ -414,16 +428,17 @@ class ImportSpreadsheetTest extends TestCase {
 
     /* End Quick Tests */
 
-    protected function _makeFakeImportTest($file_name, $data) {
+    protected function _makeFakeImportTest($file_name, $data) 
+    {
         $data['file'] = $this->_generateUploadedFile($file_name);
         $data['importer'] = array_key_exists($file_name, $this->files) ? $this->files[ $file_name ] : NULL;  
         return $data;
     }
 
-    protected function _generateUploadedFile($file_name) {
+    protected function _generateUploadedFile($file_name) 
+    {
         // if(!array_key_exists($file_name, $this->UploadedFiles)) {
-            // $file_path = dirname(__FILE__) . '/test_spreadsheets/' . $file_name;
-            $file_path = dirname(__FILE__) . '/../../tests/Feature/Import/test_spreadsheets/' . $file_name;
+            $file_path = dirname(__FILE__) . '/test_spreadsheets/' . $file_name;
             return new UploadedFile($file_path, $file_name, NULL, NULL, TRUE);
             $this->UploadedFiles[$file_name] = new UploadedFile($file_path, $file_name, NULL, NULL, TRUE);
         // }

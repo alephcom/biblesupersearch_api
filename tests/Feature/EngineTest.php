@@ -1,5 +1,9 @@
 <?php
 
+namespace Tests\Feature;
+
+use Tests\TestCase;
+
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -8,7 +12,8 @@ use App\Models\Bible;
 
 class EngineTest extends TestCase
 {
-    public function testInstance() {
+    public function testInstance() 
+    {
         $engine = new Engine();
         $this->assertInstanceOf('App\Engine', $engine);
     }
@@ -16,14 +21,16 @@ class EngineTest extends TestCase
     /**
      * Tests adding the default Bible on instantiation
      */
-    public function testConfig() {
+    public function testConfig() 
+    {
         $engine = new Engine();
         $Bibles = $engine->getBibles();
         $this->assertCount(1, $Bibles);
         $this->assertContainsOnlyInstancesOf('App\Models\Bible', $Bibles);
     }
 
-    public function testMethodAddBible() {
+    public function testMethodAddBible() 
+    {
         $engine = new Engine();
         $engine->addBible('kjv');
         $this->assertFalse($engine->hasErrors());
@@ -31,7 +38,8 @@ class EngineTest extends TestCase
         $this->assertInstanceOf('App\Models\Bible', $Bibles['kjv']);
     }
 
-    public function testMethodSetBibles() {
+    public function testMethodSetBibles() 
+    {
         $bibles = ['kjv', 'tr', 'tyndale', 'luther'];
 
         foreach($bibles as $key => $bible) {
@@ -51,7 +59,8 @@ class EngineTest extends TestCase
         $this->assertCount(count($bibles), $Bibles);
     }
 
-    public function testOtherBibles() {
+    public function testOtherBibles() 
+    {
         $Engine = new Engine();
         $Engine->setDefaultDataType('raw');
         $results = $Engine->actionQuery(['bible' => 'kjv_strongs', 'search' => 'faith']);
@@ -77,7 +86,8 @@ class EngineTest extends TestCase
         $this->assertTrue(TRUE);
     }
 
-    public function testBasicSearch() {
+    public function testBasicSearch() 
+    {
         // NOT whole word searches!
         $Engine = new Engine();
         $Engine->setDefaultDataType('raw');
@@ -117,7 +127,8 @@ class EngineTest extends TestCase
         $this->assertEquals('Him that is weak in the faith receive ye, but not to doubtful disputations.',  $this->_tp($results['kjv'][30]->text));
     }
 
-    public function testWholeWordSearch() {
+    public function testWholeWordSearch() 
+    {
         $Engine = new Engine();
         $Engine->setDefaultDataType('raw');
         $Engine->setDefaultPageAll(TRUE);
@@ -147,7 +158,8 @@ class EngineTest extends TestCase
         $this->assertEquals('Restore unto me the joy of thy salvation; and uphold me with thy free spirit.', $this->_tp($results['kjv'][0]->text));
     }
 
-    public function testBookRangeSearch() {
+    public function testBookRangeSearch() 
+    {
         $Engine = new Engine();
         $Engine->setDefaultDataType('raw');
         $Engine->setDefaultPageAll(TRUE);
@@ -159,7 +171,8 @@ class EngineTest extends TestCase
         $this->assertEquals(30, $results['kjv'][0]->verse);
     }
 
-    public function testProximitySearch() {
+    public function testProximitySearch() 
+    {
         $Engine = new Engine();
         $Engine->setDefaultDataType('raw');
         $Engine->setDefaultPageAll(TRUE);
@@ -181,13 +194,15 @@ class EngineTest extends TestCase
         $this->assertCount(10, $results['kjv']);
     }
 
-    public function testAPIBooks() {
+    public function testAPIBooks() 
+    {
         $Engine = new Engine();
         $Books = $Engine->actionBooks(array('language' => 'en'));
         $this->assertCount(66, $Books);
     }
 
-    public function testSingleton() {
+    public function testSingleton() 
+    {
         $Engine = Engine::getInstance();
         $this->assertInstanceOf('App\Engine', $Engine);
 
@@ -206,7 +221,8 @@ class EngineTest extends TestCase
         $this->assertEquals('Since we heard of your faith in Christ Jesus, and of the love which ye have to all the saints,',  $this->_tp($results['kjv'][201]->text));
     }
 
-    private function _tp($text) {
+    private function _tp($text) 
+    {
         return trim($text, '¶ ');
     }
 }

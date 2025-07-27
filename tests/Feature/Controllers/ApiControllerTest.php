@@ -1,13 +1,14 @@
 <?php
 
+namespace Tests\Feature\Controllers;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 
 /* Always test with public access enabled */
 /* Difficult if not impossible to get these tests to work with public access disabled, so not doing that now ... */
-class ApiActionsTest extends TestCase
+class ApiControllerTest extends TestCase
 {
     protected $config_cache;
     protected $config_value = 1;
@@ -407,7 +408,8 @@ class ApiActionsTest extends TestCase
     /*
      * This tests the render_needed flag on the render action
      */
-    public function testRenderNeededFlag() {
+    public function testRenderNeededFlag() 
+    {
         if(!config('download.enable')) {
             $this->markTestSkipped('Downloads disabled');
         }

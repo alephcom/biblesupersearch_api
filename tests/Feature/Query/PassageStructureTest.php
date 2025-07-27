@@ -1,5 +1,9 @@
 <?php
 
+namespace Tests\Feature\Query;
+
+use Tests\TestCase;
+
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -14,11 +18,13 @@ use App\Models\Bible;
  * special testing for this is probably not needed.
  */
 
-class PassageStructureTest extends TestCase {
+class PassageStructureTest extends TestCase 
+{
     /**
      * Test basic passage lookup
      */
-    public function testBasicLookup() {
+    public function testBasicLookup() 
+    {
         $Engine  = new Engine();
         $results = $Engine->actionQuery(['bible' => 'kjv', 'reference' => '  Hebrews 4:8; 1 Tim 3:1-5, 9 ', 'data_format' => 'passage']);
 
@@ -56,7 +62,8 @@ class PassageStructureTest extends TestCase {
         $this->assertEquals(array(3 => [9]), $results[2]['verse_index']);
     }
 
-    public function testVerseIndex() {
+    public function testVerseIndex() 
+    {
         if(!Bible::isEnabled('tyndale') && !Bible::isEnabled('luther')) {
             $this->markTestSkipped('Bibles needed for test: tyndale, luther');
         }
@@ -89,7 +96,8 @@ class PassageStructureTest extends TestCase {
     /**
      * Test looking up passages and single verses
      */
-    public function testMixedLookup() {
+    public function testMixedLookup() 
+    {
         $Engine  = new Engine();
         $bibles  = ['kjv','tr'];
 
@@ -167,7 +175,8 @@ class PassageStructureTest extends TestCase {
     /**
      * Test looking up passages across several chapters
      */
-    public function testComplexPassageLookup() {
+    public function testComplexPassageLookup() 
+    {
         $Engine  = new Engine();
         //$Engine->debug = TRUE;
         $bibles  = ['kjv','tr'];
@@ -235,7 +244,8 @@ class PassageStructureTest extends TestCase {
         $this->assertEquals(2, $results[4]['verses_count']);
     }
 
-    public function testSingleVerseLookup() {
+    public function testSingleVerseLookup() 
+    {
         $Engine  = new Engine();
         $results = $Engine->actionQuery(['bible' => 'kjv', 'reference' => 'Jn 3:16, Ps 23:1, 1 John 2:1; Acts 2:38', 'data_format' => 'passage']);
         $this->assertFalse($Engine->hasErrors());
@@ -265,7 +275,8 @@ class PassageStructureTest extends TestCase {
     /**
      * Test with a basic search, with no passage limitation
      */
-    public function testBasicSearch() {
+    public function testBasicSearch() 
+    {
         $Engine  = new Engine();
         $Engine->setDefaultPageAll(TRUE);
         $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => 'supplication', 'data_format' => 'passage', 'whole_words' => TRUE]);
@@ -338,7 +349,8 @@ class PassageStructureTest extends TestCase {
     /**
      * Test searching with passage limitation
      */
-    public function testSearchWithPassage() {
+    public function testSearchWithPassage() 
+    {
         $Engine  = new Engine();
         $Engine->setDefaultPageAll(TRUE);
         $results = $Engine->actionQuery(['bible' => ['kjv'], 'reference' => 'Rom', 'search' => 'faith', 'data_format' => 'passage', 'whole_words' => TRUE]);
@@ -351,7 +363,8 @@ class PassageStructureTest extends TestCase {
         $this->assertArrayHasKey(5, $results[0]['verses']['kjv'][1]);
     }
 
-    public function testIndefiniteChapterStart() {
+    public function testIndefiniteChapterStart() 
+    {
         $Engine  = new Engine();
         $Engine->setDefaultPageAll(TRUE);
         $results = $Engine->actionQuery(['bible' => ['kjv'], 'reference' => 'Gen -3', 'data_format' => 'passage', 'whole_words' => TRUE]);
@@ -369,7 +382,8 @@ class PassageStructureTest extends TestCase {
         $this->assertEquals('3:4', $results[2]['chapter_verse']);
     }
 
-    public function testIndefiniteChapterEnd() {
+    public function testIndefiniteChapterEnd() 
+    {
         $Engine  = new Engine();
         $Engine->setDefaultPageAll(TRUE);
         $results = $Engine->actionQuery(['bible' => ['kjv'], 'reference' => 'Ps 145 -', 'data_format' => 'passage', 'whole_words' => TRUE]);
@@ -390,7 +404,8 @@ class PassageStructureTest extends TestCase {
      * Test searching with a book range limitation
      * Obsolete?? - Searches now return a passage for every verse returned, and do not group them
      */
-    public function _testSearchWithBookRange() {
+    public function _testSearchWithBookRange() 
+    {
         $Engine  = new Engine();
         $results = $Engine->actionQuery(['bible' => ['kjv'], 'reference' => 'Rom-Heb', 'search' => 'faith', 'data_format' => 'passage', 'whole_words' => TRUE]);
         $this->assertFalse($Engine->hasErrors());

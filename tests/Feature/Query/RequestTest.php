@@ -1,18 +1,22 @@
 <?php
 
+namespace Tests\Feature\Query;
 
+use Tests\TestCase;
 use App\Engine;
 use App\Passage;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
-class RequestTest extends TestCase {
+class RequestTest extends TestCase 
+{
 
     /**
      * Request is mapped to 'search' with reference present
      */
-    public function testWithReference() {
+    public function testWithReference() 
+    {
         $Engine = new Engine();
         $Engine->setDefaultDataType('raw');
         $results = $Engine->actionQuery(['bible' => 'kjv', 'request' => 'faith', 'reference' => 'Romans', 'whole_words' => FALSE, 'page_all' => TRUE]);
@@ -23,7 +27,8 @@ class RequestTest extends TestCase {
     /**
      * Request is mapped to 'reference' with search present
      */
-    public function testWithSearch() {
+    public function testWithSearch() 
+    {
         $Engine = new Engine();
         $Engine->setDefaultDataType('raw');
         $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => 'faith', 'request' => 'Romans', 'whole_words' => FALSE, 'page_all' => TRUE]);
@@ -34,7 +39,8 @@ class RequestTest extends TestCase {
     /**
      * This will return an error
      */
-    public function testWithPassageAndSearch() {
+    public function testWithPassageAndSearch() 
+    {
         $Engine = new Engine();
         $Engine->setDefaultDataType('raw');
         $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => 'faith', 'request' => 'Romans', 'reference' => 'Acts', 'page_all' => TRUE]);
@@ -45,7 +51,8 @@ class RequestTest extends TestCase {
      * 'Romans 1' will be recognized as a reference
      * 'Romans, John' will be recognized as a reference
      */
-    public function testAsReference() {
+    public function testAsReference() 
+    {
         $Engine = new Engine();
         $Engine->setDefaultDataType('raw');
         $results = $Engine->actionQuery(['bible' => 'kjv', 'request' => 'Romans 1', 'whole_words' => FALSE, 'page_all' => TRUE]);
@@ -57,7 +64,8 @@ class RequestTest extends TestCase {
         $this->assertCount(83, $results['kjv']);
     }
 
-    public function testWithBooleanProximity() {
+    public function testWithBooleanProximity() 
+    {
         $Engine = new Engine();
         $Engine->setDefaultDataType('raw');
         $results = $Engine->actionQuery(['bible' => 'kjv', 'request' => 'faith PROX(2) hope', 'search_type' => 'boolean']);
@@ -68,7 +76,8 @@ class RequestTest extends TestCase {
      * 'faith' will be recognized as a search
      * 'Romans' will be recognized as a search, not a reference
      */
-    public function testAsSearch() {
+    public function testAsSearch() 
+    {
         $Engine = new Engine();
         $Engine->setDefaultDataType('raw');
         $results = $Engine->actionQuery(['bible' => 'kjv', 'request' => 'faith', 'whole_words' => TRUE, 'page_all' => TRUE]);
@@ -86,7 +95,8 @@ class RequestTest extends TestCase {
 
     // In this case, the request and reference fields are both references.
     // The code will look at the request field and ignore the reference field.
-    public function testWithTwoReferences() {
+    public function testWithTwoReferences() 
+    {
         $Engine = Engine::getInstance();
         $Engine->setDefaultDataType('raw');
         $results = $Engine->actionQuery(['bible' => 'kjv', 'request' => 'Revelation 1:1', 'reference' => 'Romans', 'whole_words' => FALSE, 'page_all' => TRUE]);
@@ -100,21 +110,24 @@ class RequestTest extends TestCase {
         $this->assertEquals(66, $results['kjv'][0]->book);
     }
 
-    public function testWithTwoSearches() {
+    public function testWithTwoSearches() 
+    {
         $Engine = Engine::getInstance();
         $Engine->setDefaultDataType('raw');
         $results = $Engine->actionQuery(['bible' => 'kjv', 'request' => 'faith', 'search' => 'hope', 'whole_words' => FALSE, 'page_all' => TRUE]);
         $this->assertTrue($Engine->hasErrors());
     }
 
-    public function testAsRegexpSearch() {
+    public function testAsRegexpSearch() 
+    {
         $Engine = new Engine();
         $Engine->setDefaultDataType('raw');
         $results = $Engine->actionQuery(['bible' => 'kjv', 'request' => 'love.{0,200}joy', 'whole_words' => TRUE, 'page_all' => TRUE, 'search_type' => 'regexp']);
         $this->assertFalse($Engine->hasErrors());
     }
 
-    public function testDisambiguation() {
+    public function testDisambiguation() 
+    {
         $Engine = Engine::getInstance();
         $Engine->setDefaultDataType('raw');
         $results = $Engine->actionQuery(['bible' => 'kjv', 'request' => 'Romans']);
@@ -144,7 +157,8 @@ class RequestTest extends TestCase {
         $this->assertCount(0, $metadata->disambiguation);
     }
 
-    public function testDisambiguationWithPassageLimit() {
+    public function testDisambiguationWithPassageLimit() 
+    {
         $Engine = Engine::getInstance();
         $Engine->setDefaultDataType('raw');
 
@@ -153,7 +167,8 @@ class RequestTest extends TestCase {
         $this->assertCount(8, $results['kjv']);
     }
 
-    public function testNonPassageCharacters() {
+    public function testNonPassageCharacters() 
+    {
         $this->assertFalse( Passage::_containsNonPassageCharacters('Romans 1') );
         $this->assertFalse( Passage::_containsNonPassageCharacters('Romanos') );
         $this->assertFalse( Passage::_containsNonPassageCharacters('Ésaïe 31') );
@@ -162,7 +177,8 @@ class RequestTest extends TestCase {
         $this->assertTrue( Passage::_containsNonPassageCharacters('(love OR joy ) hope') );
     }
 
-    public function testSearchGroupedAsPassage() {
+    public function testSearchGroupedAsPassage() 
+    {
         $Engine = Engine::getInstance();
 
         $query = [
@@ -192,7 +208,8 @@ class RequestTest extends TestCase {
         $this->assertEquals(7, $results[0]['verses_count']);
     }    
 
-    public function testSearchGroupedAsPassageMultiDifferentChapters() {
+    public function testSearchGroupedAsPassageMultiDifferentChapters() 
+    {
         $Engine = Engine::getInstance();
 
         $query = [
@@ -223,7 +240,8 @@ class RequestTest extends TestCase {
         $this->assertEquals(1, $results[0]['verses_count']);
     }    
 
-    public function testSearchGroupedAsPassageMultiSharedChapters() {
+    public function testSearchGroupedAsPassageMultiSharedChapters() 
+    {
         $Engine = Engine::getInstance();
 
         $query = [

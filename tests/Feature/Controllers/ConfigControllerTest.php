@@ -4,13 +4,13 @@ namespace Tests\Feature\Controllers;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use TestsLegacy\TestCase;
+use Tests\TestCase;
 use App\Models\Post;
 use App\User;
 use App\ConfigManager;
 
 // This class tests OptionManager, along with some option related controller actions.
-class OptionsTest extends \TestCase
+class ConfigControllerTest extends TestCase
 {
     
     protected $run_in_production = false;
