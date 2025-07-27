@@ -181,7 +181,7 @@ class HighlightTest extends TestCase {
     public function testAmpersandIssue()
     {
         if(!\App\Models\Bible::isEnabled('geneva')) {
-            $this->markTestSkipped();
+            $this->markTestSkipped('Geneva Bible needed for this test');
         }
 
         $Engine = Engine::getInstance();

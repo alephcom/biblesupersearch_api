@@ -266,6 +266,7 @@ class Passage {
         }
 
         $this->clearChapterVerse();
+        $chapter_verse = $chapter_verse ?: '';
         $this->raw_chapter_verse = preg_replace('/\s+/', ' ', $chapter_verse);
         $chapter_verse = str_replace([';',' '], [',',''], $chapter_verse);
         $chapter_verse = preg_replace('/,+/', ',', $chapter_verse); // Replace repeated , with one ,

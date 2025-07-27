@@ -6,6 +6,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\RenderManager;
 use App\Models\RenderLog;
 use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\UseSeparatePhpProcess;
 
 // php ./vendor/phpunit/phpunit/phpunit --filter=RenderManagerTest
 
@@ -145,6 +146,7 @@ class RenderManagerTest extends TestCase
         $this->assertEquals(0, $results['space_needed_overall']);   
     }
 
+    #[UseSeparatePhpProcess]
     public function testRetainConfigsInit() 
     {
         $test_space = 50;

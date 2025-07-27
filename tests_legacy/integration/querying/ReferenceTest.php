@@ -46,13 +46,12 @@ class ReferenceTest extends TestCase
 
     public function testRandomForeign() 
     {
-        if(!Bible::isEnabled('lith')) {
-            $this->assertTrue(TRUE);
-            return;
+        if(!Bible::isEnabled('rvg')) {
+            $this->markTestSkipped('RVG Bible needed for this test');
         }
 
         $Engine = new Engine();
-        $results = $Engine->actionQuery(['bible' => 'lith', 'reference' => 'Random Chapter', 'data_format' => 'passage']);
+        $results = $Engine->actionQuery(['bible' => 'rvg', 'reference' => 'Random Chapter', 'data_format' => 'passage']);
         $this->assertFalse($Engine->hasErrors());
         // The shortest chapter has 2 verses
         $this->assertGreaterThanOrEqual(2, $results[0]['verses_count']);
@@ -60,7 +59,7 @@ class ReferenceTest extends TestCase
         $this->assertEquals('Random Chapter', $results[0]['book_raw']);
 
         $Engine = new Engine();
-        $results = $Engine->actionQuery(['bible' => 'lith', 'reference' => 'Random Verse', 'data_format' => 'passage']);
+        $results = $Engine->actionQuery(['bible' => 'rvg', 'reference' => 'Random Verse', 'data_format' => 'passage']);
         $this->assertFalse($Engine->hasErrors());
         $this->assertEquals(1, $results[0]['verses_count']);
         $this->assertNotEquals($results[0]['book_raw'], $results[0]['book_name']);

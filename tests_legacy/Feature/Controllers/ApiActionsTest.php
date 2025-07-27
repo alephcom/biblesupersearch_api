@@ -389,6 +389,8 @@ class ApiActionsTest extends TestCase
 
         // attempt to trap intermittint error
         if($response->getStatusCode() != 200) {
+            echo 'Intermittent error #1, status code: ' . $response->getStatusCode() . PHP_EOL;
+            var_dump($response->getStatusCode());
             var_dump($response['error_level']);
             var_dump($response['errors']);
             var_dump($response['results']);
