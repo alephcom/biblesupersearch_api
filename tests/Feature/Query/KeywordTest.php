@@ -1,36 +1,35 @@
 <?php
 
+namespace Tests\Feature\Query;
+
+use Tests\TestCase;
+
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 use App\Engine;
 
 class KeywordTest extends TestCase
 {
-    public function testRepeatedKeyword() {
+    public function testRepeatedKeyword() 
+    {
         $Engine = new Engine();
         $Engine->setDefaultDataType('raw');
 
         $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => 'faith joy joy love joy', 'search_type' => 'boolean']);
         $this->assertFalse($Engine->hasErrors());
-        //$errors = $Engine->getErrors();
-        //$this->assertCount(1, $errors);
-        //$this->assertEquals( trans('errors.no_results'), $errors[0]);;
     }
 
     // Test % as infinite wildcard
-    public function testInfWildcardPct() {
+    public function testInfWildcardPct() 
+    {
         $Engine = new Engine();
         $Engine->setDefaultDataType('raw');
 
-        // var_dump(config('database.mysql.server_version'));
-        // var_dump(config('database.mysql.new_regexp'));
-
-
         $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => 'faith%', 'whole_words' => TRUE, 'page_all' => TRUE]);
 
-        // print_r($Engine->getErrors());
         $this->assertFalse($Engine->hasErrors());
         $this->assertCount(336, $results['kjv']);
 
@@ -47,11 +46,11 @@ class KeywordTest extends TestCase
         $this->assertEquals(66, $results['kjv'][0]->book);
         $this->assertEquals(3,  $results['kjv'][0]->chapter);
         $this->assertEquals(10, $results['kjv'][0]->verse);        
-
     }
 
     // Test * as infinite wildcard
-    public function testInfWildcardAst() {
+    public function testInfWildcardAst() 
+    {
         $Engine = new Engine();
         $Engine->setDefaultDataType('raw');
 
@@ -74,7 +73,8 @@ class KeywordTest extends TestCase
         $this->assertEquals(10, $results['kjv'][0]->verse);
     }
 
-    public function testWithPhrase() {
+    public function testWithPhrase() 
+    {
         $Engine = new Engine();
         $Engine->setDefaultDataType('raw');
 
@@ -95,7 +95,8 @@ class KeywordTest extends TestCase
         //$this->assertCount(9, $results['kjv']);
     }
 
-    public function testExactPhraseOneWord() {
+    public function testExactPhraseOneWord() 
+    {
         $Engine = new Engine();
         $Engine->setDefaultDataType('raw');
         $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => 'faith', 'search_type' => 'phrase', 'page_all' => TRUE, 'whole_words' => FALSE]);
@@ -111,7 +112,8 @@ class KeywordTest extends TestCase
         $this->assertCount(231, $results['kjv']);
     }
 
-    public function testExactPhraseWildcard() {
+    public function testExactPhraseWildcard() 
+    {
         $Engine = new Engine();
         $Engine->setDefaultDataType('raw');
         $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => 'faith%', 'search_type' => 'phrase', 'page_all' => TRUE, 'whole_words' => TRUE]);
@@ -119,7 +121,8 @@ class KeywordTest extends TestCase
         $this->assertCount(336, $results['kjv']);
     }
 
-    public function testExactPhraseApostrophe() {
+    public function testExactPhraseApostrophe() 
+    {
         $Engine = new Engine();
         $Engine->setDefaultDataType('raw');
         $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => 'Jacob\'s Trouble', 'search_type' => 'phrase', 'page_all' => TRUE, 'whole_words' => TRUE]);
@@ -130,7 +133,8 @@ class KeywordTest extends TestCase
         $this->assertEquals(7,  $results['kjv'][0]->verse);
     }
 
-    public function testTwoOrMore() {
+    public function testTwoOrMore() 
+    {
         $Engine = new Engine();
         $Engine->setDefaultDataType('raw');
         $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => 'faith hope love', 'search_type' => 'two_or_more', 'page_all' => TRUE, 'whole_words' => TRUE]);
@@ -141,7 +145,8 @@ class KeywordTest extends TestCase
         $this->assertEquals(2, $results['kjv'][0]->verse);
     }
 
-    public function testKeywordDisambShortcut() {
+    public function testKeywordDisambShortcut() 
+    {
         $Engine = new Engine();
         $Engine->setDefaultDataType('raw');
         $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => 'Paul', 'whole_words' => TRUE]);
@@ -154,42 +159,46 @@ class KeywordTest extends TestCase
     // Short keyword tests
 
     // 'a'
-    public function testAAsKeyword() {
-        // $Engine = Engine::getInstance();
+    #[DataProvider('aAsKeywordDataProvider')]
+    public function testAAsKeyword(string $query) 
+    {
         $Engine = new Engine();
 
-        $subtests = [
-            'light a candle',        // Matt 5:15
-            'a city',                // Matt 5:14
-            'his brother without a', // Matt 5:22
+        $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => $query, 'whole_words' => TRUE]);
+        $this->assertFalse($Engine->hasErrors(), $query);        
+
+        $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => $query, 'whole_words' => FALSE]);
+        $this->assertFalse($Engine->hasErrors(), $query);
+    } 
+
+    public static function aAsKeywordDataProvider() 
+    {
+        return [
+            ['light a candle'],         // Matt 5:15
+            ['a city'],                 // Matt 5:14
+            ['his brother without a'],  // Matt 5:22
         ];
-
-        foreach($subtests as $test) {
-            $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => $test, 'whole_words' => TRUE]);
-            $this->assertFalse($Engine->hasErrors(), $test);        
-
-            $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => $test, 'whole_words' => FALSE]);
-            $this->assertFalse($Engine->hasErrors(), $test);
-        }
-    }    
+    }
 
     // 'I'
-    public function testIAsKeyword() {
-        // $Engine = Engine::getInstance();
+    #[DataProvider('iAsKeywordDataProvider')]
+    public function testIAsKeyword(string $query) 
+    {
         $Engine = new Engine();
 
-        $subtests = [
-            'Think not that I',
-            'I say unto you',
-            'But I say unto you',
+        $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => $query, 'whole_words' => TRUE]);
+        $this->assertFalse($Engine->hasErrors(), $query);        
+
+        $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => $query, 'whole_words' => FALSE]);
+        $this->assertFalse($Engine->hasErrors(), $query);
+    }
+
+    public static function iAsKeywordDataProvider() 
+    {
+        return [
+            ['Think not that I'],
+            ['I say unto you'],
+            ['But I say unto you'],
         ];
-
-        foreach($subtests as $test) {
-            $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => $test, 'whole_words' => TRUE]);
-            $this->assertFalse($Engine->hasErrors(), $test);        
-
-            $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => $test, 'whole_words' => FALSE]);
-            $this->assertFalse($Engine->hasErrors(), $test);
-        }
     }
  }

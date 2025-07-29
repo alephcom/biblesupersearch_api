@@ -1,5 +1,8 @@
 <?php
 
+namespace Tests\Feature\Query;
+
+use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -7,8 +10,10 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use App\Engine;
 use App\Models\Verses\VerseStandard;
 
-class AdvancedSearchTest extends TestCase {
-    public function testAllWords() {
+class AdvancedSearchTest extends TestCase 
+{
+    public function testAllWords() 
+    {
         $Engine = Engine::getInstance();
         $Engine->setDefaultDataType('raw');
         $Engine->setDefaultPageAll(TRUE);
@@ -25,7 +30,8 @@ class AdvancedSearchTest extends TestCase {
         $this->assertCount(2, $results['kjv']);
     }
 
-    public function testAnyWords() {
+    public function testAnyWords() 
+    {
         $Engine = Engine::getInstance();
         $Engine->setDefaultDataType('raw');
         $Engine->setDefaultPageAll(TRUE);
@@ -47,7 +53,8 @@ class AdvancedSearchTest extends TestCase {
         $this->assertCount(24, $results['kjv']);
     }
 
-    public function testOneWord() {
+    public function testOneWord() 
+    {
         $Engine = Engine::getInstance();
         $Engine->setDefaultDataType('raw');
         $Engine->setDefaultPageAll(TRUE);
@@ -70,7 +77,8 @@ class AdvancedSearchTest extends TestCase {
         $this->assertCount(24, $results['kjv']);
     }
 
-    public function testExactPhrase() {
+    public function testExactPhrase() 
+    {
         $Engine = Engine::getInstance();
         $Engine->setDefaultDataType('raw');
         $Engine->setDefaultPageAll(TRUE);
@@ -91,7 +99,8 @@ class AdvancedSearchTest extends TestCase {
         $this->assertCount(235, $results['kjv']);
     }
 
-    public function testNoneWords() {
+    public function testNoneWords() 
+    {
         $Engine = Engine::getInstance();
         $Engine->setDefaultDataType('raw');
         $Engine->setDefaultPageAll(TRUE);
@@ -103,7 +112,8 @@ class AdvancedSearchTest extends TestCase {
         $this->assertCount(432, $results['kjv']);
     }
 
-    public function testLongPassageQuery() {
+    public function testLongPassageQuery() 
+    {
         $reference = 'Gen 3:36; Exodus 3:36; Leviticus 3:36; Numbers 3:36; Deuteronomy 3:36; Joshua 3:36; Judges 3:36; Ruth 3:36; 1 Samuel 3:36; '
                 . '2 Samuel 3:36; '
                 . '1 Kings 3:36; 2 Kings 3:36; 1 Chronicles 3:36; 2 Chronicles 3:36; Ezra 3:36; Nehemiah 3:36; Esther 3:36; Job 3:36; Psalms 3:36; '
@@ -127,7 +137,8 @@ class AdvancedSearchTest extends TestCase {
         $this->assertCount(5, $results['kjv']);
     }
 
-    public function testProxRange() {
+    public function testProxRange() 
+    {
         $Engine = Engine::getInstance();
         $Engine->setDefaultDataType('raw');
         $Engine->setDefaultPageAll(TRUE);
