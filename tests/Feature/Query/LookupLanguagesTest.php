@@ -1,5 +1,8 @@
 <?php
 
+namespace Tests\Feature\Query;
+
+use Tests\TestCase;
 use App\Engine;
 use App\Passage;
 use App\Models\Verses\VerseStandard;
@@ -120,8 +123,6 @@ class LookupLanguagesTest extends TestCase
 
         $results = $Engine->actionQuery(['bible' => 'chinese_union_trad', 'reference' => '歷代志下 5:1-10', 'whole_words' => FALSE]);
         $this->assertFalse($Engine->hasErrors());
-
-        // print_r($results[0]['verses']['chinese_union_trad']); die();
 
         $this->assertCount(10, $results[0]['verses']['chinese_union_trad'][5]);    
         $this->assertEquals(14, $results[0]['book_id']);

@@ -1,5 +1,8 @@
 <?php
 
+namespace Tests\Feature\Query;
+
+use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -7,8 +10,10 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use App\Engine;
 use App\Models\Verses\VerseStandard;
 
-class ProximitySearchTest extends TestCase {
-    public function testParenthensesMismatch() {
+class ProximitySearchTest extends TestCase 
+{
+    public function testParenthensesMismatch() 
+    {
         $Engine = Engine::getInstance();
         $Engine->setDefaultDataType('raw');
         $Engine->setDefaultPageAll(TRUE);
@@ -26,7 +31,8 @@ class ProximitySearchTest extends TestCase {
         $this->assertEquals( trans('errors.prox_paren_mismatch'), $errors[0]);
     }
 
-    public function testNotBoolean() {
+    public function testNotBoolean() 
+    {
         $Engine = Engine::getInstance();
         $Engine->setDefaultDataType('raw');
         $Engine->setDefaultPageAll(TRUE);
@@ -38,11 +44,8 @@ class ProximitySearchTest extends TestCase {
         $this->assertEquals( trans('errors.prox_operator_not_allowed'), $errors[0]);
     }
 
-    public function _testWordsWithinNumberVerses() {
-        // ?? not sure what this was supposed to test
-    }
-
-    public function testMissingKeywordChap() {
+    public function testMissingKeywordChap() 
+    {
         $Engine = Engine::getInstance();
         $Engine->setDefaultDataType('raw');
 
@@ -62,7 +65,8 @@ class ProximitySearchTest extends TestCase {
         $this->assertEquals( trans('errors.operator.op_at_beginning', ['op' => 'CHAP']), $errors[0]);
     }    
 
-    public function testMissingKeywordProx() {
+    public function testMissingKeywordProx() 
+    {
         $Engine = Engine::getInstance();
         $Engine->setDefaultDataType('raw');
 
@@ -81,7 +85,8 @@ class ProximitySearchTest extends TestCase {
         $this->assertEquals( trans('errors.operator.op_at_beginning', ['op' => 'PROX(5)']), $errors[0]);
     }    
 
-    public function testMissingKeywordProc() {
+    public function testMissingKeywordProc() 
+    {
         $Engine = Engine::getInstance();
         $Engine->setDefaultDataType('raw');
 
@@ -100,7 +105,8 @@ class ProximitySearchTest extends TestCase {
         $this->assertEquals( trans('errors.operator.op_at_beginning', ['op' => 'PROC(5)']), $errors[0]);
     }    
 
-    public function testMissingKeywordBook() {
+    public function testMissingKeywordBook() 
+    {
         $Engine = Engine::getInstance();
         $Engine->setDefaultDataType('raw');
 
@@ -119,7 +125,8 @@ class ProximitySearchTest extends TestCase {
         $this->assertEquals( trans('errors.operator.op_at_beginning', ['op' => 'BOOK']), $errors[0]);
     }
 
-    public function testProximitySearchType() {
+    public function testProximitySearchType() 
+    {
         $Engine = Engine::getInstance();
         $Engine->setDefaultDataType('raw');
         $Engine->setDefaultPageAll(TRUE);
@@ -153,7 +160,8 @@ class ProximitySearchTest extends TestCase {
         $this->assertCount(96, $results['kjv']);
     }
 
-    public function testMixedProxLimits() {
+    public function testMixedProxLimits() 
+    {
         $Engine = Engine::getInstance();
         $Engine->setDefaultDataType('raw');
         $Engine->setDefaultPageAll(TRUE);
@@ -191,7 +199,8 @@ class ProximitySearchTest extends TestCase {
         $this->assertCount(37, $results['kjv']);
     }
 
-    public function testProximitySearchTypeDefaultLimit() {
+    public function testProximitySearchTypeDefaultLimit() 
+    {
         $Engine = Engine::getInstance();
         $Engine->setDefaultDataType('raw');
         $Engine->setDefaultPageAll(TRUE);
@@ -201,7 +210,8 @@ class ProximitySearchTest extends TestCase {
         $this->assertCount(6, $results['kjv']);
     }
 
-    public function testChapterSearchType() {
+    public function testChapterSearchType() 
+    {
         $Engine = Engine::getInstance();
         $Engine->setDefaultDataType('raw');
         $Engine->setDefaultPageAll(TRUE);
@@ -210,7 +220,8 @@ class ProximitySearchTest extends TestCase {
         $this->assertCount(10, $results['kjv']);
     }
 
-    public function testBookSearchType() {
+    public function testBookSearchType() 
+    {
         $Engine = Engine::getInstance();
         $Engine->setDefaultDataType('raw');
         $Engine->setDefaultPageAll(TRUE);
@@ -220,7 +231,8 @@ class ProximitySearchTest extends TestCase {
         $this->assertCount(4, $results['kjv']);
     }
 
-    public function testAPI118() {
+    public function testAPI118() 
+    {
         $Engine = Engine::getInstance();
         $Engine->setDefaultDataType('raw');
         $Engine->setDefaultPageAll(TRUE);
@@ -228,7 +240,8 @@ class ProximitySearchTest extends TestCase {
         $this->assertTrue($Engine->hasErrors());
     }
 
-    public function testAPI117() {
+    public function testAPI117() 
+    {
         $Engine = Engine::getInstance();
         $Engine->setDefaultDataType('raw');
         $Engine->setDefaultPageAll(TRUE);
@@ -237,7 +250,8 @@ class ProximitySearchTest extends TestCase {
         $this->assertLessThan(100, count($results['kjv'])); // Return count not vetted to the number
     }
 
-    public function testProxOpEnd() {
+    public function testProxOpEnd() 
+    {
         $Engine = Engine::getInstance();
         $Engine->setDefaultDataType('raw');
         
@@ -255,7 +269,8 @@ class ProximitySearchTest extends TestCase {
     }
  
     // Make sure that non-proximity search types don't attempt to send proximity terms to the SQL query
-    public function testNonBooleanProximitySearchTypes() {
+    public function testNonBooleanProximitySearchTypes() 
+    {
         $Engine = Engine::getInstance();
         $params = ['bible' => 'kjv', 'search' => 'escape | hide PROX(5) wrath | indignation', 'search_type' => NULL];
 
@@ -273,7 +288,8 @@ class ProximitySearchTest extends TestCase {
         }
     }    
 
-    public function testBooleanProximitySearchTypes() {
+    public function testBooleanProximitySearchTypes() 
+    {
         $Engine = Engine::getInstance();
         $params = ['bible' => 'kjv', 'search' => 'escape | hide PROX(5) wrath | indignation', 'search_type' => NULL];
 
@@ -289,36 +305,6 @@ class ProximitySearchTest extends TestCase {
             $results = $Engine->actionQuery($params);
             $this->assertFalse($Engine->hasErrors(), $msg);
         }
-    }
-
-    public function _testQueryBinding() {
-        // Non-essential test
-        return;
-
-        // Cannot reuse named bindings with PDO extension?
-        // This is special :P
-        $binddata = array('kjv','kjv');
-
-        $Bibles = DB::table('bibles')->whereRaw('module = ? OR module_v2 = ?', $binddata)->get();
-        $this->assertCount(1, $Bibles);
-        $this->assertEquals('kjv', $Bibles[0]->module);
-
-        $binddata = array(
-            ':bible'  => 'kjv',
-            ':bible2' => 'kjv',
-        );
-
-        $Bibles = DB::table('bibles')->whereRaw('module = :bible OR module_v2 = :bible2', $binddata)->get();
-        $this->assertCount(1, $Bibles);
-        $this->assertEquals('kjv', $Bibles[0]->module);
-
-        $binddata = array(
-            ':bible'  => 'kjv',
-        );
-
-        //$Bibles = DB::table('bibles')->whereRaw('module = :bible OR module_v2 = :bible', $binddata)->get();
-        //$this->assertCount(1, $Bibles);
-        //$this->assertEquals('kjv', $Bibles[0]->module);
     }
 
 }

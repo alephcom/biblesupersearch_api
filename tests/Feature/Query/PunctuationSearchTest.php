@@ -1,5 +1,8 @@
 <?php
 
+namespace Tests\Feature\Query;
+
+use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -40,7 +43,8 @@ class PunctuationSearchTest extends TestCase
     }
 
 
-    public function testAllWords() {
+    public function testAllWords() 
+    {
         list($Engine, $query) = $this->_initTest('all_words');
 
         $results = $Engine->actionQuery($query);
@@ -49,7 +53,8 @@ class PunctuationSearchTest extends TestCase
         $this->assertFalse($Engine->hasErrors());
     }    
 
-    public function testAnyWord() {
+    public function testAnyWord() 
+    {
         list($Engine, $query) = $this->_initTest('any_word');
 
         $results = $Engine->actionQuery($query);
@@ -58,7 +63,8 @@ class PunctuationSearchTest extends TestCase
         $this->assertCount(1, $errors); // too many results
     }    
 
-    public function testOneWord() {
+    public function testOneWord() 
+    {
         list($Engine, $query) = $this->_initTest('one_word');
         $results = $Engine->actionQuery($query);
         $errors = $Engine->getErrors();
@@ -66,7 +72,8 @@ class PunctuationSearchTest extends TestCase
         $this->assertCount(1, $errors); // too many results
     }    
 
-    public function testTwoOrMoreWords() {
+    public function testTwoOrMoreWords() 
+    {
         list($Engine, $query) = $this->_initTest('two_or_more');
         $results = $Engine->actionQuery($query);
         $errors = $Engine->getErrors();
@@ -74,21 +81,22 @@ class PunctuationSearchTest extends TestCase
         $this->assertCount(1, $errors); // too many results
     }    
 
-    public function testExactPhrase() {
+    public function testExactPhrase() 
+    {
         list($Engine, $query) = $this->_initTest('phrase');
         $results = $Engine->actionQuery($query);
         $errors = $Engine->getErrors();
         $this->assertFalse($Engine->hasErrors());
     }
     
-    public function testBoolean() {
+    public function testBoolean() 
+    {
         list($Engine, $query) = $this->_initTest('boolean');
         // Dropping the phrase directly in as a boolean search should result in no results, but no query breakage, either
         $results = $Engine->actionQuery($query);
         $errors = $Engine->getErrors();
         $this->assertFalse($Engine->hasErrors());
         $this->assertCount(1, $results['kjv']);
-        // $this->assertCount(1, $errors);
 
         // Dropping the phrase into the boolean query as a phrase should return result
         $query['search'] = '"' . $query['search'] . '"';
@@ -99,7 +107,8 @@ class PunctuationSearchTest extends TestCase
         $this->assertCount(1, $results['kjv']);
     }    
 
-    public function testRegexp() {
+    public function testRegexp() 
+    {
         list($Engine, $query) = $this->_initTest('regexp');
         $results = $Engine->actionQuery($query);
         $this->assertCount(1, $results['kjv']);
