@@ -1,8 +1,13 @@
 <?php
 
+namespace Tests\Feature\Query;
+
+use Tests\TestCase;
+
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 use App\Engine;
 use App\Models\Bible;
@@ -92,50 +97,29 @@ class ReferenceTest extends TestCase
         $this->assertEquals(23,  $last->verse);
     }
 
-    public function testIndefiniteEndRange() 
+    #[DataProvider('indefinteRangeDataProvider')]
+    public function testIndefiniteEndRange(string $query, int $startBook, int $startChapter, int $startVerse, int $endBook, int $endChapter, int $endVerse) 
     {
         $Engine = new Engine();
-        // Matthew chapter 25 through end of book
-        $results = $Engine->actionQuery(['bible' => 'kjv', 'reference' => 'Matt 25 - ', 'data_format' => 'raw']);
-        $res = $results['kjv'];
-
+        $results = $Engine->actionQuery(['bible' => 'kjv', 'reference' => $query, 'data_format' => 'raw']);
         $this->assertFalse($Engine->hasErrors());
-        $this->assertEquals(40, $results['kjv'][0]->book);
-        $this->assertEquals(25, $results['kjv'][0]->chapter);
-        $this->assertEquals(1,  $results['kjv'][0]->verse);
+        $this->assertEquals($startBook, $results['kjv'][0]->book);
+        $this->assertEquals($startChapter, $results['kjv'][0]->chapter);
+        $this->assertEquals($startVerse,  $results['kjv'][0]->verse);
 
-        $last = array_pop($res);
-        $this->assertEquals(40, $last->book);
-        $this->assertEquals(28, $last->chapter);
-        $this->assertEquals(20, $last->verse);
+        $last = array_pop($results['kjv']);
+        $this->assertEquals($endBook, $last->book);
+        $this->assertEquals($endChapter, $last->chapter);
+        $this->assertEquals($endVerse, $last->verse);
+    }
 
-        // Rev 12:2 through end of CHAPTER
-        $results = $Engine->actionQuery(['bible' => 'kjv', 'reference' => 'Rev 12:2 -', 'data_format' => 'raw']);
-        $res = $results['kjv'];
-
-        $this->assertFalse($Engine->hasErrors());
-        $this->assertEquals(66, $results['kjv'][0]->book);
-        $this->assertEquals(12, $results['kjv'][0]->chapter);
-        $this->assertEquals(2,  $results['kjv'][0]->verse);
-
-        $last = array_pop($res);
-        $this->assertEquals(66, $last->book);
-        $this->assertEquals(12, $last->chapter);
-        $this->assertEquals(17, $last->verse);
-
-        // Rev 12:2 through end of BOOK
-        $results = $Engine->actionQuery(['bible' => 'kjv', 'reference' => 'Rev 12:2 - :', 'data_format' => 'raw']);
-        $res = $results['kjv'];
-
-        $this->assertFalse($Engine->hasErrors());
-        $this->assertEquals(66, $results['kjv'][0]->book);
-        $this->assertEquals(12, $results['kjv'][0]->chapter);
-        $this->assertEquals(2,  $results['kjv'][0]->verse);
-
-        $last = array_pop($res);
-        $this->assertEquals(66, $last->book);
-        $this->assertEquals(22, $last->chapter);
-        $this->assertEquals(21, $last->verse);
+    public static function indefinteRangeDataProvider()
+    {
+        return [
+            ['Matt 25 - ', 40, 25, 1, 40, 28, 20],
+            ['Rev 12:2 -', 66, 12, 2, 66, 12, 17],
+            ['Rev 12:2 - :', 66, 12, 2, 66, 22, 21],
+        ];
     }
 
     public function testDuplicatePassage() 
@@ -168,40 +152,44 @@ class ReferenceTest extends TestCase
         $this->assertEquals('Psalms', $results[0]['book_name']);
     }
 
-    public function testReferenceAdjustment() 
+    #[DataProvider('referenceAdjustmentDAtaProvider')]
+    public function testReferenceAdjustment(string $query, string $expected) 
     {
-        $Engine = new Engine();
-        $results = $Engine->actionQuery(['bible' => 'kjv', 'reference' => 'Rom', 'data_format' => 'passage']);
+        $Engine = Engine::getInstance();
+        $results = $Engine->actionQuery(['bible' => 'kjv', 'reference' => $query, 'data_format' => 'passage']);
         $this->assertFalse($Engine->hasErrors());
-        $this->assertEquals('1', $results[0]['chapter_verse']);
+        $this->assertEquals($expected, $results[0]['chapter_verse']);
+    }
 
-        // Romans only has 16 chapters
-        $results = $Engine->actionQuery(['bible' => 'kjv', 'reference' => 'Rom 16-17', 'data_format' => 'passage']);
-        $this->assertCount(1, $results);
-        $this->assertEquals('16', $results[0]['chapter_verse']);
+    public static function referenceAdjustmentDAtaProvider()
+    {
+        return [
+            ['Rom', '1'],
+            ['Rom 16-17', '16'],
+            ['Ps 91:14-20', '91:14 - 16'],
+            ['Rev 12:2 -', '12:2 - 17'],
+            ['Rev 21:17 -', '21:17 - 27'],
+        ];
+    }
 
-        // Ps 91 has 16 verses
-        $results = $Engine->actionQuery(['bible' => 'kjv', 'reference' => 'Ps 91:14-20', 'data_format' => 'passage']);
-        $this->assertFalse($Engine->hasErrors());
-        $this->assertEquals('91:14 - 16', $results[0]['chapter_verse']);
-
-        // Rev 12:2 through end of CHAPTER
-        $results = $Engine->actionQuery(['bible' => 'kjv', 'reference' => 'Rev 12:2 -', 'data_format' => 'passage']);
-        $this->assertFalse($Engine->hasErrors());
-        $this->assertEquals('12:2 - 17', $results[0]['chapter_verse']);
-
+    public function testReferenceAdjustmentThroughEndofBook()
+    {
         // Rev 12:2 through end of BOOK
+        
+        $Engine = new Engine();
         $results = $Engine->actionQuery(['bible' => 'kjv', 'reference' => 'Rev 12:2 - :', 'data_format' => 'passage']);
         $this->assertEquals('12:2 - 17', $results[0]['chapter_verse']);
         $this->assertEquals('22', $results[10]['chapter_verse']);
+    }
 
-        $results = $Engine->actionQuery(['bible' => ['kjv'], 'reference' => 'Rev 21:17 -', 'data_format' => 'passage']);
-        $this->assertEquals('21:17 - 27', $results[0]['chapter_verse']);
-
+    public function testReferenceAdjustmentParallel()
+    {
         if(!Bible::isEnabled('tyndale')) {
-            return;
+            $this->markTestSkipped('Tyndale Bible needed for this test');
         }
 
+        $Engine = new Engine();
+        
         // Tyndale doesn't have a vs 27, or does it?  Apparently, some editions do. So, omitting this test ...
         // $results = $Engine->actionQuery(['bible' => ['tyndale'], 'reference' => 'Rev 21:17 -', 'data_format' => 'passage']);
         // $this->assertEquals('21:17 - 27', $results[0]['chapter_verse']);

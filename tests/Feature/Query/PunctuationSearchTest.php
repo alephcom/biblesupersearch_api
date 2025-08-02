@@ -42,7 +42,6 @@ class PunctuationSearchTest extends TestCase
         return [$Engine, $query];
     }
 
-
     public function testAllWords() 
     {
         list($Engine, $query) = $this->_initTest('all_words');

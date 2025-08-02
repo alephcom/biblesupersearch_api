@@ -1,5 +1,9 @@
 <?php
 
+namespace Tests\Feature\Query;
+
+use Tests\TestCase;
+
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -61,45 +65,48 @@ class RegexpTest extends TestCase
         // $this->assertFalse($Engine->hasErrors());
     }
 
-    public function testBooleanPlusSquareBrackets() {
+    public function testBooleanPlusSquareBrackets() 
+    {
         $Engine = new Engine();
         $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => '`ab[b]+`', 'data_format' => 'raw', 'search_type' => 'boolean', 'page_all' => TRUE]);
         $this->assertFalse($Engine->hasErrors());
-        //$this->assertCount(216, $results['kjv']);
         $this->assertCount(218, $results['kjv']);
     }
 
-    public function testCurlyBracketsAndComma() {
+    public function testCurlyBracketsAndComma() 
+    {
         $Engine = new Engine();
         $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => 'a[b]{2,}', 'data_format' => 'raw', 'search_type' => 'regexp', 'page_all' => TRUE]);
         $this->assertFalse($Engine->hasErrors());
-        //$this->assertCount(216, $results['kjv']);
         $this->assertCount(218, $results['kjv']);
     }
 
     public function testBooleanCurlyBracketsAndComma() {
+
         $Engine = new Engine();
         $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => '`a[b]{2,}`', 'data_format' => 'raw', 'search_type' => 'boolean', 'page_all' => TRUE]);
         $this->assertFalse($Engine->hasErrors());
-        //$this->assertCount(216, $results['kjv']);
         $this->assertCount(218, $results['kjv']);
     }
 
-    public function testCarrot() {
+    public function testCarrot() 
+    {
         $Engine = new Engine();
         $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => '^Faith', 'data_format' => 'raw', 'search_type' => 'regexp']);
         $this->assertFalse($Engine->hasErrors());
         $this->assertCount(2, $results['kjv']);
     }
 
-    public function testBooleanCarrot() {
+    public function testBooleanCarrot() 
+    {
         $Engine = new Engine();
         $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => '`^Faith`', 'data_format' => 'raw', 'search_type' => 'boolean']);
         $this->assertFalse($Engine->hasErrors());
         $this->assertCount(2, $results['kjv']);
     }
 
-    public function testDollarSign() {
+    public function testDollarSign() 
+    {
         $Engine = new Engine();
         $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => 'it,$', 'data_format' => 'raw', 'search_type' => 'regexp']);
         $this->assertFalse($Engine->hasErrors());
@@ -110,7 +117,8 @@ class RegexpTest extends TestCase
         $this->assertNotEmpty($results['kjv']);
     }
 
-    public function testBooleanDollarSign() {
+    public function testBooleanDollarSign() 
+    {
         $Engine = new Engine();
         $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => '`it,$`', 'data_format' => 'raw', 'search_type' => 'boolean']);
         $this->assertFalse($Engine->hasErrors());
@@ -121,23 +129,24 @@ class RegexpTest extends TestCase
         $this->assertNotEmpty($results['kjv']);
     }
 
-    public function testParen() {
+    public function testParen() 
+    {
         $Engine = new Engine();
         $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => 'a(b){2,}', 'data_format' => 'raw', 'search_type' => 'regexp', 'page_all' => TRUE]);
         $this->assertFalse($Engine->hasErrors());
-        //$this->assertCount(216, $results['kjv']);
         $this->assertCount(218, $results['kjv']);
     }
 
-    public function testBooleanParen() {
+    public function testBooleanParen() 
+    {
         $Engine = new Engine();
         $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => '`a(b){2,}`', 'data_format' => 'raw', 'search_type' => 'boolean', 'page_all' => TRUE]);
         $this->assertFalse($Engine->hasErrors());
-        //$this->assertCount(216, $results['kjv']);
         $this->assertCount(218, $results['kjv']);
     }
 
-    public function testBooleanProx() {
+    public function testBooleanProx() 
+    {
         $Engine = new Engine();
         $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => '`tempt.*world` PROX(11) hear', 'data_format' => 'raw', 'search_type' => 'boolean', 'whole_words' => TRUE]);
         $this->assertFalse($Engine->hasErrors());
