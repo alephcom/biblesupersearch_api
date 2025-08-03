@@ -7,6 +7,7 @@ use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 use App\Engine;
 
@@ -43,26 +44,25 @@ class RegexpTest extends TestCase
         $this->assertCount(218, $results['kjv']); // 218 with Psalms headers
     }
 
-    public function testWithQuotes()
+    #[DataProvider('withQuotesDataProvider')]
+    public function testWithQuotes(string $search, string $search_type)
     {
-        $Engine = Engine::getInstance();
-        $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => '"created the heaven"', 'data_format' => 'raw', 'search_type' => 'regexp', 'page_all' => TRUE]);
-        $this->assertFalse($Engine->hasErrors());               
+        $Engine = new Engine();
+        $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => $search, 'data_format' => 'raw', 'search_type' => $search_type, 'page_all' => TRUE]);
+        $this->assertFalse($Engine->hasErrors());
+        $this->assertNotEmpty($results['kjv']);
+    }
 
-        $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => '`created the heaven`', 'data_format' => 'raw', 'search_type' => 'regexp', 'page_all' => TRUE]);
-        $this->assertFalse($Engine->hasErrors());    
-
-        $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => '"`created the heaven`"', 'data_format' => 'raw', 'search_type' => 'regexp', 'page_all' => TRUE]);
-        $this->assertFalse($Engine->hasErrors());        
-
-        $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => '`"created the heaven"`', 'data_format' => 'raw', 'search_type' => 'regexp', 'page_all' => TRUE]);
-        $this->assertFalse($Engine->hasErrors());    
-
-        // $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => '"`created the heaven`"', 'data_format' => 'raw', 'search_type' => 'boolean', 'page_all' => TRUE]);
-        // $this->assertFalse($Engine->hasErrors());        
-
-        // $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => '`"created the heaven"`', 'data_format' => 'raw', 'search_type' => 'boolean', 'page_all' => TRUE]);
-        // $this->assertFalse($Engine->hasErrors());
+    public static function withQuotesDataProvider()
+    {
+        return [
+            ['"created the heaven"', 'regexp'], 
+            ['`created the heaven`', 'regexp'],
+            ['"`created the heaven`"', 'regexp'],
+            ['`"created the heaven"`', 'regexp'],
+            // ['"`created the heaven`"', 'boolean'], // known issue with this query
+            // ['`"created the heaven"`', 'boolean'], // known issue with this query
+        ];
     }
 
     public function testBooleanPlusSquareBrackets() 
@@ -105,28 +105,23 @@ class RegexpTest extends TestCase
         $this->assertCount(2, $results['kjv']);
     }
 
-    public function testDollarSign() 
+    #[DataProvider('dollarSignDataProvider')]
+    public function testDollarSign(string $search, string $search_type) 
     {
         $Engine = new Engine();
-        $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => 'it,$', 'data_format' => 'raw', 'search_type' => 'regexp']);
-        $this->assertFalse($Engine->hasErrors());
-        $this->assertNotEmpty($results['kjv']);
-
-        $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => 'it\.$', 'data_format' => 'raw', 'search_type' => 'regexp']);
+        $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => $search, 'data_format' => 'raw', 'search_type' => $search_type]);
         $this->assertFalse($Engine->hasErrors());
         $this->assertNotEmpty($results['kjv']);
     }
 
-    public function testBooleanDollarSign() 
+    static public function dollarSignDataProvider()
     {
-        $Engine = new Engine();
-        $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => '`it,$`', 'data_format' => 'raw', 'search_type' => 'boolean']);
-        $this->assertFalse($Engine->hasErrors());
-        $this->assertNotEmpty($results['kjv']);
-
-        $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => '`it\.$`', 'data_format' => 'raw', 'search_type' => 'boolean']);
-        $this->assertFalse($Engine->hasErrors());
-        $this->assertNotEmpty($results['kjv']);
+        return [
+            ['it,$', 'regexp'],
+            ['it\.$' , 'regexp'],
+            ['`it,$`'   , 'boolean'],
+            ['`it\.$`'  , 'boolean'],
+        ];
     }
 
     public function testParen() 

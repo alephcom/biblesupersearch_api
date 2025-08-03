@@ -1,42 +1,75 @@
 <?php
 
+namespace Tests\Feature\Query;
+
+use Tests\TestCase;
+
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 use App\Engine;
 
 class SearchValidationTest extends TestCase 
 {
 
-    public function testBadSearchType()
+    #[DataProvider('searchTypeNoErrorDataProvider')]
+    public function testSearchTypeNoError(string|null $search_type)
     {
         $Engine = Engine::getInstance();
 
         // No Error, Defaulting Search Type
-        $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => 'love world', 'data_format' => 'raw']);
-        $this->assertFalse($Engine->hasErrors());
+        $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => 'hope joy', 'data_format' => 'raw', 'search_type' => $search_type]);
 
-        // No Error, Defaulting Search Type
-        $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => 'love world', 'data_format' => 'raw', 'search_type' => '']);
-        $this->assertFalse($Engine->hasErrors());
+        if($Engine->hasErrors()) {
+            $errors = $Engine->getErrors();
+            $this->assertEquals(0, count($errors), 'There should be no errors, but got: ' . implode(', ', $errors));
+        }
 
-        // No Error, Valid Search Type
-        $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => 'love world', 'data_format' => 'raw', 'search_type' => 'and']);
         $this->assertFalse($Engine->hasErrors());
+    }
 
-        // No Error, Valid Search Type (alias)
-        $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => 'love world', 'data_format' => 'raw', 'search_type' => 'all_words']);
-        $this->assertFalse($Engine->hasErrors());
+    public static function searchTypeNoErrorDataProvider()
+    {
+        return [
+            [null], // No Error, Defaulting Search Type
+            [''], // No Error, Defaulting Search Type
+            ['and'], // No Error, Valid Search Type
+            ['or'], // No Error, Valid Search Type
+            ['xor'], // No Error, Valid Search Type
+            ['all_words'], // No Error, Valid Search Type (alias)
+            ['any_word'], // No Error, Valid Search Type (alias)
+            ['boolean'], // No Error, Valid Search Type
+        ];
+    }
 
+    #[DataProvider('badSearchTypesReturnsErrorDataProvider')]
+    public function testBadSearchTypeReturnsError(string $search_type) 
+    {
+        $Engine = Engine::getInstance();
+        
         // Has Error, invalid Search Type
-        $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => 'love world', 'data_format' => 'raw', 'search_type' => 'big_cat']);
+        $results = $Engine->actionQuery(['bible' => 'kjv', 'search' => 'love world', 'data_format' => 'raw', 'search_type' => $search_type]);
         $this->assertTrue($Engine->hasErrors());
         $errors = $Engine->getErrors();
 
-        $this->assertEquals(trans('errors.invalid_search.type_does_not_exist', ['type' => 'big_cat']), $errors[0]);
+        $this->assertEquals(trans('errors.invalid_search.type_does_not_exist', ['type' => $search_type]), $errors[0]);
     }
 
+    public static function badSearchTypesReturnsErrorDataProvider()
+    {
+        return [
+            ['all_word'], // Misspelled alias, should return error
+            ['any_words'],  // Misspelled alias, should return error
+            ['big_cat'], // Invalid Search Type
+        ];
+    }
+
+    // Todo: rebuild the test for parallel language search
+    // SEPARATE CLASS
+    // Use separate process, data provider, other test standards ...
+    // This test was build to work around configs, but it is ugly
     public function testParallelLanguageSearch()
     {
         $multi_bible_languages_allow = config('bss.parallel_search_different_languages');
