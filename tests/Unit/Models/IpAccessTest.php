@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use App\Models\IpAccess;
 use PHPUnit\Framework\Attributes\DataProvider;
 
-class IpAccessPrivateTest extends TestCase
+class IpAccessTest extends TestCase
 {
     protected $default_limit;
     protected $config_cache;
