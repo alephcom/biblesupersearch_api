@@ -1,22 +1,37 @@
 <?php
 
+namespace Tests\Feature\Models;
+
+use Tests\TestCase;
+
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use App\Models\Books\BookAbstract As Book;
+use PHPUnit\Framework\Attributes\DataProvider;
 
-class BookTest extends TestCase
+class BookAbstractTest extends TestCase
 {
-    public function testBookFind() {
-        $queries = ['Rom', 'Rev', 'Matthew', 'Jn', 'Jdg'];
-
-        foreach($queries as $q) {
-            $Book = Book::findByEnteredName($q);
-            $this->assertInstanceOf('App\Models\Books\En', $Book);
-        }
+    #[DataProvider('bookFindDataProvider')]
+    public function testBookFind(string $book) 
+    {
+        $Book = Book::findByEnteredName($book);
+        $this->assertInstanceOf('App\Models\Books\En', $Book);
     }
 
-    public function testBookFindClassName() {
+    public static function bookFindDataProvider()
+    {
+        return [
+            ['Rom'],
+            ['Rev'],
+            ['Matthew'],
+            ['Jn'],
+            ['Jdg'],
+        ];
+    }
+
+    public function testBookFindClassName() 
+    {
         $Book = Book::findByEnteredName('Rom', 'en'); // Specified language
         $this->assertInstanceOf('App\Models\Books\En', $Book);
         $Book = Book::findByEnteredName('Rom');       // Default language
@@ -52,12 +67,12 @@ class BookTest extends TestCase
         Book::migrateFromCsv($test_language);
         $this->assertEquals(66, $class_name::count());
 
-
         // Drop table before exiting
-        // Book::dropBookTable($test_language);
+        Book::dropBookTable($test_language);
     }
 
-    public function testMethodFindByEnteredName() {
+    public function testMethodByEnteredName() 
+    {
         // Exact name
         $Book = Book::findByEnteredName('Matthew');
         $this->assertEquals(40, $Book->id);
@@ -69,39 +84,42 @@ class BookTest extends TestCase
         // Beginning of name
         $Book = Book::findByEnteredName('Dan'); // Daniel
         $this->assertEquals(27, $Book->id);
+    }
 
-        // Loose matching
-        $Book = Book::findByEnteredName('1 Pt', null, false, true); // 1 Peter
-        $this->assertEquals(60, $Book->id);
-        $Book = Book::findByEnteredName('2Pt', null, false, true); // 2 Peter
-        $this->assertEquals(61, $Book->id);
-        $Book = Book::findByEnteredName('1John', null, false, true); // 1 John
-        $this->assertEquals(62, $Book->id);
-        $Book = Book::findByEnteredName('II Sam', null, false, true); // 2 Samuel
-        $this->assertEquals(10, $Book->id);
-        $Book = Book::findByEnteredName('1st Sam', null, false, true); // 1 Samuel
-        $this->assertEquals(9, $Book->id);
-        $Book = Book::findByEnteredName('First Sam', null, false, true); // 1 Samuel
-        $this->assertEquals(9, $Book->id);
-        $Book = Book::findByEnteredName('Third John', null, false, true);
-        $this->assertEquals(64, $Book->id);
-        $Book = Book::findByEnteredName('III John', null, false, true);
-        $this->assertEquals(64, $Book->id);
-        $Book = Book::findByEnteredName('II Corin', null, false, true);
-        $this->assertEquals(47, $Book->id);
-        $Book = Book::findByEnteredName('2nd Pet', null, false, true);
-        $this->assertEquals(61, $Book->id);
-        $Book = Book::findByEnteredName('2nd Pet', null, false, true);
-        $this->assertEquals(61, $Book->id);
+    #[DataProvider('bookLooseMatchDataProvider')]
+    public function testFindByEnteredNameLooseMatch(string $book, int $id)
+    {
+        $Book = Book::findByEnteredName($book, null, false, true); // Loose matching
+        $this->assertInstanceOf('App\Models\Books\En', $Book);
+        $this->assertEquals($id, $Book->id);
+    }
 
-        // No match
+    public static function bookLooseMatchDataProvider()
+    {
+        return [
+            ['1 Pt', 60],
+            ['2Pt', 61],
+            ['1John', 62],
+            ['II Sam', 10],
+            ['1st Sam', 9],
+            ['First Sam', 9],
+            ['Third John', 64],
+            ['III John', 64],
+            ['II Corin', 47],
+            ['2nd Pet', 61],
+        ];
+    }
+
+    public function testFindByEnderedNameNoMatch()
+    {
         $Book = Book::findByEnteredName('Jdsd', null, false, true); // Looking for 'Judges' but won't match
         $this->assertNull($Book);
         $Book = Book::findByEnteredName('faith'); // Attempting to search for 'faith' from reference input - no match!
         $this->assertNull($Book);
     }
 
-    public function testModelQuery() {
+    public function testModelQuery() 
+    {
         $class = 'App\Models\Books\En';
         // Get multiple models
         $multiple = [1,2,3,4,5]; // Genesis, Exodus, Leviticus, Numbers, Deuteronomy
@@ -115,8 +133,11 @@ class BookTest extends TestCase
         foreach($Books as $key => $Book) {
             $this->assertEquals($alpha[$key], $Book->id);
         }
-
     }
 
-
+    public function testIsSupportedLanguage()
+    {
+        // This will call \App\Models\Language::hasBookSupport, which should be mocked in a real test
+        $this->assertIsBool(Book::isSupportedLanguage('en'));
+    }
 }

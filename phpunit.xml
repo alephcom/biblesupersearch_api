@@ -11,9 +11,6 @@
     backupStaticProperties="false"
 >
   <testsuites>
-    <testsuite name="Legacy">
-      <directory>./tests_legacy/</directory>
-    </testsuite>
     <testsuite name="Unit">
         <directory>tests/Unit</directory>
     </testsuite>

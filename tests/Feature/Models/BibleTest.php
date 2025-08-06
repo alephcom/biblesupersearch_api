@@ -11,7 +11,10 @@ use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 use App\Models\Bible;
 
-class BibleTest extends TestCase {
+class BibleTest extends TestCase 
+{
+
+    private $runInstallTest = FALSE; // installation test can slow things down
 
     public function testBibleAndVerses() 
     {
@@ -26,6 +29,61 @@ class BibleTest extends TestCase {
     {
         $this->expectException(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
         $niv = Bible::findByModule('dne1', TRUE); // Will throw an exception when not found
+    }
+
+    /**
+     * Test installation of a Bible
+     */
+    public function testInstall() 
+    {
+        if(!$this->runInstallTest) {
+            $this->assertTrue(TRUE);
+            return;
+        }
+
+        echo(PHP_EOL . 'Installation test - offiical module' . PHP_EOL);
+
+        $Bible = Bible::findByModule('kjv');
+        $Bible->uninstall();
+        $this->assertEquals(0, $Bible->installed);
+        $Bible->install();
+        $this->assertEquals(1, $Bible->installed);
+        $this->assertTrue( Schema::hasTable('verses_kjv') );
+        $Bible->enabled = 1;
+        $Bible->save();
+    }
+
+    /**
+     * Test installation of an Unofficial Bible module
+     */
+    public function testInstallUnofficial() 
+    {
+       if(!$this->runInstallTest) {
+            $this->assertTrue(TRUE);
+            return;
+        }
+
+        echo(PHP_EOL . 'Installation test - UNoffiical module' . PHP_EOL);
+
+        $Bible = Bible::findByModule('kjv');
+        $Bible->uninstall();
+        $Bible->official = 0;
+        $Bible->save();
+        $Bible->migrateModuleFile();
+
+        $this->assertEquals(0, $Bible->installed);
+
+        $Bible->install();
+        $this->assertEquals(1, $Bible->installed);
+        $this->assertTrue( Schema::hasTable('verses_kjv') );
+        $this->testLookupQuery();
+
+        $Bible->official = 1;
+        $Bible->save();
+        $Bible->migrateModuleFile();
+
+        $Bible->enabled = 1;
+        $Bible->save();
     }
 
     public function testAddBible() 

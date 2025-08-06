@@ -1,32 +1,55 @@
 <?php
 
+namespace Tests\Feature\Models;
+
+use Tests\TestCase;
+
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Schema;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 use App\Models\Bible;
 use App\Passage;
 use App\Search;
+use App\Models\Verses\VerseStandard;
+use App\Models\Verses\VerseAbstract;
 
-class VersesTest extends TestCase
+class VerseStandardTest extends TestCase
 {
-    // installation test can slow things down - should be TRUE in production
-    public $runInstallTest = FALSE;
 
-    public function testLookupQuery() {
+    public function testVerseStandardFromBible()
+    {
         $Bible = Bible::findByModule('kjv');
+        $Verses = $Bible->verses();
+
+        $this->assertInstanceOf(VerseStandard::class, $Verses);
+        $this->assertInstanceOf(VerseAbstract::class, $Verses);
+    }
+
+    public function testLookupQuery() 
+    {
+        $Bible = Bible::findByModule('kjv');
+        $Verses = $Bible->verses();
+
+        $this->assertInstanceOf(VerseStandard::class, $Verses);
+
+
         $Passages = Passage::parseReferences('Rom 1:1-10');
-        $Verses = $Bible->getSearch($Passages);
+        $VC = $Bible->getSearch($Passages);
+        $VC2 = $Verses->getSearch($Passages);
         //$Verses = $Verses_Collection->all();
 
-        $this->assertCount(10, $Verses);
-        //$this->assertContainsOnlyInstancesOf('App\Models\Verses\Kjv', $Verses);
+        $this->assertCount(10, $VC);
+        $this->assertCount(10, $VC2);
+        // $this->assertContainsOnlyInstancesOf('App\Models\Verses\Kjv', $VC);
 
-        $this->assertEquals(45, $Verses[0]->book);
-        $this->assertEquals(1, $Verses[0]->chapter);
+        $this->assertEquals(45, $VC[0]->book);
+        $this->assertEquals(1, $VC[0]->chapter);
 
         for($i = 1; $i <= 10; $i++) {
-            $this->assertEquals($i, $Verses[$i - 1]->verse);
+            $this->assertEquals($i, $VC[$i - 1]->verse);
         }
 
         $Passages = Passage::parseReferences('Matt. 1:1');
@@ -91,70 +114,14 @@ class VersesTest extends TestCase
         $this->assertEquals($expected_parse, $Passages[0]->chapter_verse_parsed);
         $VC = $Bible->getSearch($Passages);
         $this->assertCount(51, $VC);
-
-
-    }
-
-    /**
-     * Test installation of a Bible
-     */
-    public function testInstall() {
-        if(!$this->runInstallTest) {
-            $this->assertTrue(TRUE);
-            return;
-        }
-
-        echo(PHP_EOL . 'Installation test - offiical module' . PHP_EOL);
-
-        $Bible = Bible::findByModule('kjv');
-        $Bible->uninstall();
-        $this->assertEquals(0, $Bible->installed);
-        $Bible->install();
-        $this->assertEquals(1, $Bible->installed);
-        $this->assertTrue( Schema::hasTable('verses_kjv') );
-        $Bible->enabled = 1;
-        $Bible->save();
-    }
-
-    /**
-     * Test installation of an Unofficial Bible module
-     */
-    public function testInstallUnofficial() {
-       if(!$this->runInstallTest) {
-            $this->assertTrue(TRUE);
-            return;
-        }
-
-        echo(PHP_EOL . 'Installation test - UNoffiical module' . PHP_EOL);
-
-        $Bible = Bible::findByModule('kjv');
-        $Bible->uninstall();
-        $Bible->official = 0;
-        $Bible->save();
-        $Bible->migrateModuleFile();
-
-        $this->assertEquals(0, $Bible->installed);
-
-        $Bible->install();
-        $this->assertEquals(1, $Bible->installed);
-        $this->assertTrue( Schema::hasTable('verses_kjv') );
-        $this->testLookupQuery();
-
-//        $Bible->uninstall();
-        $Bible->official = 1;
-        $Bible->save();
-        $Bible->migrateModuleFile();
-
-//        $Bible->install();
-        $Bible->enabled = 1;
-        $Bible->save();
     }
 
     /**
      * Tests all installed Bibles to make sure they're properly installed
      */
-    public function testInstalledBibles() {
-        $Bibles = Bible::where('installed', 1)->get();
+    public function testVersesOfInstalledBibles() 
+    {
+        $Bibles = Bible::where('installed', 1)->get(); // query does NOT work inside data provider apparently
 
         foreach($Bibles as $Bible) {
             if(strpos($Bible->module, 'test_bible') !== FALSE) {
@@ -173,7 +140,6 @@ class VersesTest extends TestCase
             $this->assertCount(10, $verses, $Bible->module . ' has empty table');
             $this->assertGreaterThanOrEqual(1, $verses[0]->book);
             $this->assertLessThanOrEqual(66, $verses[0]->book);
-            //$this->assertTrue(in_array($verses[0]->book, [1, 40]), $Bible->module . ': Test verese did not come from Genesis or Matthew');
             $this->assertEquals(1, $verses[0]->id, $Bible->module . ' verses are misnumbered');
             $this->assertNotEmpty($verses[0]->text);
         }
@@ -182,8 +148,9 @@ class VersesTest extends TestCase
     /**
      * Tests all enabled Bibles to make sure they're properly installed
      */
-    public function testEnabledBibles() {
-        $Bibles = Bible::where('enabled', 1)->get();
+    public function testVersesOfEnabledBibles() 
+    {
+        $Bibles = Bible::where('enabled', 1)->get(); // query does NOT work inside data provider apparently
 
         foreach($Bibles as $Bible) {
             if(strpos($Bible->module, 'test_bible') !== FALSE) {
