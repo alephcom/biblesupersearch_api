@@ -64,28 +64,32 @@ abstract class BibleAbstract extends Command
     protected function _listBibles() 
     {
         Bible::populateBibleTable();
-        $Bibles = Bible::orderBy('rank')->get();
+        $Bibles = Bible::with('language')->orderBy('rank')->get();
         $module_len = 25;
         $name_len = 0;
+        $lang_len = 15;
 
         foreach($Bibles as $Bible) {
             $module_len = max($module_len, strlen($Bible->module));
             $name_len = max($name_len, strlen($Bible->name));
+            $lang_name = $Bible->language ? $Bible->language->name : ($Bible->lang_short ?: 'N/A');
+            $lang_len = max($lang_len, strlen($lang_name));
         }
 
         print '' . PHP_EOL;
         print 'List of Bibles (automatically refreshed from module files)' . PHP_EOL;
         print '' . PHP_EOL;
-        print "\t" . str_pad('Module', $module_len) . "  Installed  Enabled  " . str_pad('Year', 12) . '  ' . str_pad('Name', $name_len) . PHP_EOL;
-        print "\t" . str_repeat('-', $module_len + $name_len + 36) . PHP_EOL;
+        print "\t" . str_pad('Module', $module_len) . "  Installed  Enabled  " . str_pad('Year', 12) . '  ' . str_pad('Language', $lang_len) . '  ' . str_pad('Name', $name_len) . PHP_EOL;
+        print "\t" . str_repeat('-', $module_len + $name_len + $lang_len + 44) . PHP_EOL;
 
         foreach($Bibles as $Bible) {
             $ena = ($Bible->enabled)   ? 'Yes' : 'No';
             $ins = ($Bible->installed) ? 'Yes' : 'No';
+            $lang_name = $Bible->language ? $Bible->language->name : ($Bible->lang_short ?: 'N/A');
             //$this->print();
 
             $text = "\t" . str_pad($Bible->module, $module_len) . "  " . str_pad($ins, 9) .  "  " . str_pad($ena, 7) .  "  " . str_pad($Bible->year, 12);
-            $text .= '  ' . str_pad($Bible->name, $name_len) . PHP_EOL;
+            $text .= '  ' . str_pad($lang_name, $lang_len) . '  ' . str_pad($Bible->name, $name_len) . PHP_EOL;
 
             print $text;
         }
