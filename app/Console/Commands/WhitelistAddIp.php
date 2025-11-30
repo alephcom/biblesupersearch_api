@@ -13,7 +13,7 @@ class WhitelistAddIp extends Command
      *
      * @var string
      */
-    protected $signature = 'whitelist:add-ip {ip_address}';
+    protected $signature = 'ip:whitelist {ip_address}';
 
     /**
      * The console command description.

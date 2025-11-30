@@ -13,7 +13,7 @@ class BlockedReport extends Command
      *
      * @var string
      */
-    protected $signature = 'blocked:report {--date= : Specific date to check (Y-m-d format, defaults to today)}';
+    protected $signature = 'ip:blocked {--date= : Specific date to check (Y-m-d format, defaults to today)}';
 
     /**
      * The console command description.
