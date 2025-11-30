@@ -43,6 +43,7 @@ class Kernel extends ConsoleKernel
         Commands\UserPassword::class,
         Commands\WhitelistAddIp::class,
         Commands\BlockedReport::class,
+        Commands\ResetIpLimit::class,
         Commands\MigrateModuleFiles::class,
         Commands\MigrationSquash::class,
         Commands\DbTemplateSquash::class,
