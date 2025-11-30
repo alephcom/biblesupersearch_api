@@ -41,6 +41,8 @@ class Kernel extends ConsoleKernel
         Commands\TestEmail::class,
         Commands\UserCreate::class,
         Commands\UserPassword::class,
+        Commands\WhitelistAddIp::class,
+        Commands\BlockedReport::class,
         Commands\MigrateModuleFiles::class,
         Commands\MigrationSquash::class,
         Commands\DbTemplateSquash::class,
