@@ -1597,5 +1597,88 @@ class Engine
         $Bible = Bible::findByModule($module);
         return($Bible && $Bible->installed && $Bible->enabled);
     }
+
+    /**
+     * API action for getting a random verse from a specified book and version
+     * @param array $input
+     * @return array
+     */
+    public function actionRandom($input) 
+    {
+        $this->resetErrors();
+        $this->metadata = new \stdClass;
+
+        // Validate required parameters
+        if (empty($input['book'])) {
+            $this->addError('Book parameter is required', 4);
+            return [];
+        }
+
+        if (empty($input['bible'])) {
+            $this->addError('Bible parameter is required', 4);
+            return [];
+        }
+
+        $book_id = is_numeric($input['book']) ? (int)$input['book'] : null;
+        $module = is_array($input['bible']) ? $input['bible'][0] : $input['bible'];
+
+        // Validate Bible
+        $Bible = Bible::findByModule($module);
+        if (!$Bible) {
+            $this->addError(trans('errors.bible_no_exist', ['module' => $module]), 4);
+            return [];
+        }
+
+        if (!$Bible->enabled || !$Bible->installed) {
+            $this->addError('Bible is not available: ' . $module, 4);
+            return [];
+        }
+
+        // Validate book ID (1-66 for standard Bible books)
+        if (!$book_id || $book_id < 1 || $book_id > 66) {
+            $this->addError('Invalid book ID. Must be between 1 and 66', 4);
+            return [];
+        }
+
+        // Get the verses model for this Bible
+        $Verses = $Bible->verses();
+
+        // Get a random verse from the specified book
+        $verse = $Verses->where('book', $book_id)
+            ->inRandomOrder()
+            ->select('id', 'book', 'chapter', 'verse', 'text')
+            ->first();
+
+        if (!$verse) {
+            $this->addError(trans('errors.no_results'), 4);
+            return [];
+        }
+
+        // Get book information
+        $language = $Bible->lang_short ?: config('bss.defaults.language_short');
+        $book_class = \App\Models\Books\BookAbstract::getClassNameByLanguage($language);
+        $Book = $book_class::find($book_id);
+
+        if (!$Book) {
+            // Fallback to default language
+            $book_class = \App\Models\Books\BookAbstract::getClassNameByLanguage(config('bss.defaults.language_short'));
+            $Book = $book_class::find($book_id);
+        }
+
+        // Format the result similar to passage format
+        $result = [
+            'book_id' => $verse->book,
+            'book_name' => $Book ? $Book->name : null,
+            'book_short' => $Book ? $Book->shortname : null,
+            'chapter' => $verse->chapter,
+            'verse' => $verse->verse,
+            'chapter_verse' => $verse->chapter . ':' . $verse->verse,
+            'text' => $verse->text,
+            'bible' => $Bible->module,
+            'bible_name' => $Bible->name,
+        ];
+
+        return [$result];
+    }
 }
 
