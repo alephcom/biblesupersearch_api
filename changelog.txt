@@ -5,7 +5,7 @@ Bible SuperSearch API Changelog
 * Added `ip:blocked` command to list IP addresses that have reached their daily access limit
 * Added `ip:reset-limit` command to reset the daily limit counter for an IP address or domain
 * Enhanced `bible:list` command to include language column in the output
-* Added `random` API endpoint to retrieve a random verse from a specified book and Bible version
+* Added `random` API endpoint to retrieve a random verse from a specified book and Bible version (requires `book` and `bible` parameters)
 * Added relationship method to IpAccessLog model for accessing associated IpAccess records
 
 = 6.1.2
